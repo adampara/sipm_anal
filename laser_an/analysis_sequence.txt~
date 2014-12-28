@@ -1,0 +1,49 @@
+
+0. baseline subtraction 
+-----------------------
+
+in baseline
+/det_rd_results/scripts/run_paw_all.csh exec baseline_it it=xx
+
+this will create new ntupes: *_bascor_nt
+
+1.characterize the average waveforms, no noise subtraction
+----------------------------------------------------------
+
+
+in average_wf
+/det_rd_results/scripts/run_paw_all.csh exec average_waveforms it1=xx it2=xx nscan=5000
+
+2. determine the average noise level and its variance
+------------------------------------------------------
+
+in noise/det_rd_results/scripts/run_paw_all.csh exec noise_fit it=xx coh=0 file_t=bascor_nt (or sweeps_nt)
+
+
+3. determine the coherent noise
+-------------------------------
+in noise/det_rd_results/scripts/run_paw_all.csh exec coh_noise it=xx  file_t=bascor_nt (or sweeps_nt)
+
+
+4. determine the average noise level and its variance
+-----------------------------------------------------
+in noise/det_rd_results/scripts/run_paw_all.csh exec noise_fit it=xx coh=1 file_t=bascor_nt (or sweeps_nt)
+
+
+
+
+5. find template
+----------------
+in templates
+/det_rd_results/scripts/run_paw_all.csh exec make_template_it it=xx file_t=bascor_nt
+
+6. determine the pe's
+---------------------
+in peaks
+/det_rd_results/scripts/run_paw_all.csh exec peaks_it it=xx file_t=sweeps_nt
+
+7. make ntuples
+---------------
+in pulses
+/det_rd_results/scripts/run_paw_all.csh exec pulses_batch_it it=xx file_t=bascor_nt
+

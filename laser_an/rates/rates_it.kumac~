@@ -1,0 +1,17 @@
+macro geiger_it  it=5  dir=../exp/Ham-025U-4_Oct_19  il=4998 iu=5003
+
+*   construct templates for all voltages at given it
+*   selecting pulses in the laser gate by the ratio of area to peak
+*   highest peak within the laser gate [lgl] to ]lgu] is used
+*   area is calculated from [low_edge] to [upp_edge], max pulse being in bin 201
+
+	       
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	nvolt=$VLEN(voltz)
+
+	do iv=1,[nvolt]	
+		exec geiger_prob dir=[dir] coh=1 il=4975 iu=5025 it=[it] iv=[iv] 
+	enddo

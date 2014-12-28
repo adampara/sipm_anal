@@ -1,0 +1,8 @@
+macro save_hist idh=33 hist_file=test.hist
+
+*c    save histogram id=[idh] into a file [hist_file]
+   
+close 55
+hist/file 55 [hist_file] ! N
+hist/hio/hrout [idh]
+close 55 

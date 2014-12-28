@@ -1,0 +1,11 @@
+      subroutine integ(N)
+
+c      integrate vector x into itsef
+ 
+      vector x
+
+      do i = 2,N
+         x(i) = i(i)+x(i-1)
+      enddo
+
+      end

@@ -1,0 +1,16 @@
+macro scan_pulses thl=0.1 thu=0.2 nev=10 fev=1
+
+do i = 1,100
+
+  idh = 99 + [i]
+  hist/cre/1d [idh] pulse 100 0. 100.
+
+enddo
+
+nt/loop 50 disp_pulse.f(100,[thl],[thu])
+
+do i = 1,100
+  idh = 99 + [i]
+  hist/pl [idh]
+  wait
+enddo   

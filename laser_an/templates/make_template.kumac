@@ -1,0 +1,65 @@
+macro make_template it=1 iv=1 dir=../exp/Ham-025U-4_Oct_19 cutl=0.12 cutu=0.14 i_upper_edge=400 lgl=4980 lgu=5040 i_lower_edge=180 deb=0 file_t=bascor_nt
+
+*   use the first iteration template and improve pulse selection
+*   based on the ratio between the area of a peak and its amplitude
+*   for a single temperature/voltage 
+*   use [ncomp] window for the comparison
+
+*   return the histogram of shisquares (334) and summed waveforms (222)
+*   they are used in two phases of 1pe_find.kumac
+
+*   June 22,2014
+*    add file_t argument
+
+exec ../setup.kumac
+
+nev = 5000
+if [deb]>0 then
+	nev=500
+endif
+
+vec/read temp [dir]/temps.dat
+ntemp=$VLEN(temp)
+t=temp([it])
+vec/read voltz [dir]/[t]/bias_volt.dat
+nvolt=$VLEN(voltz)
+v=voltz([iv])
+
+*    average waveforms, all, 1,2,3 pe
+
+do ipe=0,3
+   idh = 220+[ipe]
+   if $HEXIST([idh]) = 1 then
+	hist/del [idh]
+   endif
+  
+   title = Average waveform, [ipe] pes
+   hist/create/1d [idh] [title] 1000 0.5 1000.5
+enddo
+
+exec open_nt  IT=[it] IV=[iv] dir=[dir] file_t=[file_t]
+
+v = $FORMAT([v],f5.2)
+vec/read coh_noi [dir]/[t]_noise/[v].coh_noise_[file_t].dat
+
+*   for diagnostic purposes store 1000 accepted single pulses 
+do i=1001,2000
+	if $HEXIST([i]) = 1 then
+		hist/del [i]
+	endif
+
+	hist/creat/1d [i] 'waveform' 1000 0.5 1000.5
+enddo
+
+*   histogram area-to-peak values
+ncomp = 300
+hist/crea/1d 334 area_to_peak [ncomp] -50. 100.
+
+nt/proj 334 30.a_to_p.f([lgl],[lgu],[i_lower_edge],[i_upper_edge],[cutl],[cutu]) ! [nev]
+h/plot 334
+
+
+
+
+
+

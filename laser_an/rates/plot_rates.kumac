@@ -1,0 +1,69 @@
+macro plot_rates_it  dir=../exp/Ham-025U-4_Oct_19  file_t=pulses_bascor_nt.nt cat=0
+
+vec/read temp [dir]/temps.dat
+ntemp=$VLEN(temp)
+
+vect/cre dark(6,16)               
+vect/cre darke(6,16)               
+vect/cre afterp_p(6,16)
+vect/cre aft_p_er(6,16)
+
+vect/cre a_dark(6,16,[ntemp])               
+vect/cre a_darke(6,16,[ntemp])               
+vect/cre a_afterp_p(6,16,[ntemp])
+vect/cre a_aft_p_er(6,16,[ntemp])
+
+ 
+do jj = 1,6
+   vec/cre dark[jj](16,[ntemp])
+   vec/cre darke[jj](16,[ntemp])
+   vec/cre aftp[jj](16,[ntemp])
+   vec/cre aftpe[jj](16,[ntemp])
+enddo
+
+
+        *do it=1,1
+        do it=1,[ntemp]
+
+        t=temp([it])
+	
+   *file_hist = [dir]/[t]_rates/rates_[file_t].hist
+   *exec save_hist idh=0 hist_file=[file_hist]
+
+   file_dark = [dir]/[t]_rates/dark_rates_[file_t]_cat_[cat].dat
+   vec/read dark [file_dark]
+   vec/copy dark(1:6,1:16) a_dark(1:6,1:16,[it])
+
+   file_darke = [dir]/[t]_rates/dark_rates_er_[file_t]_cat_[cat].dat
+   vec/read darke [file_darke]
+   vec/copy darke(1:6,1:16) a_darke(1:6,1:16,[it])
+
+   file_afterp_p = [dir]/[t]_rates/afterp_p_[file_t]_cat_[cat].dat
+   vec/read afterp_p [file_afterp_p]
+   vec/copy a_afterp_p(1:6,1:16) a_dark(1:6,1:16,[it])
+
+   file_aft_p_er = [dir]/[t]_rates/aft_p_er_[file_t]_cat_[cat].dat
+   vec/read aft_p_er [file_aft_p_er]
+   vec/copy a_aft_p_er(1:6,1:16) a_dark(1:6,1:16,[it])
+
+   *vec/read voltz [dir]/[t]/bias_volt.dat
+   *nvolt=$VLEN(voltz)
+
+*     jj  - voltage
+*     it  - temperature
+*     kk  - npe
+	do jj = 1,16
+          do kk = 1,6
+             vec/copy dark([kk],[jj]) dark[kk]([jj],[it])
+             *mess              vec/copy dark([kk],[jj]) dark[kk]([jj],[it])
+
+             vec/copy darke([kk],[jj]) darke[kk]([jj],[it])
+             *mess              vec/copy dark([kk],[jj]) dark[kk]([jj],[it])
+             vec/copy afterp_p([kk],[jj]) aftp[kk]([jj],[it])
+             *mess              vec/copy a_afterp_p([kk],[jj]) aftp[kk]([jj],[it])
+             vec/copy aft_p_er([kk],[jj]) aftpe[kk]([jj],[it])
+             *mess              vec/copy a_aft_p_er([kk],[jj]) aftpe[kk]([jj],[it])
+          enddo
+
+	enddo	
+        enddo

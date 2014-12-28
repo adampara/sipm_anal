@@ -1,0 +1,20 @@
+macro rand_afterp_an_all ntry=100000 nbin=100 xup=2.e-6 fr1=0.5 fr2=1.0 amu=2.0
+
+*   anlyze all multiplicities and afterpulsing probalities
+
+naft = 10
+vec/create ap(1[naft]) R 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.95
+nmul = 8
+vec/crea mult([nmul]) R 0.5 1.0 2.0 5.0 7.5 10.0 15.0 20.0
+ngates = 20
+vect/crea ratg([ngates],[nmul],[naft])
+
+do im = 1,[nmul]
+   amu = mult([im])
+    do ip = 1,[naft]
+       fr = ap([ip])
+       exec rand_afterp_an_full fr1=[fr] amu=[amu]
+       vec/copy rate(1:[ngates]) ratg(1:[ngates],[im],[ip])
+       vec/cop
+    enddo
+enddo

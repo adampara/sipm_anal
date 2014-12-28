@@ -1,0 +1,50 @@
+macro scan dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1 fev=1 nev=1  nscan=20 coh=0 deb=1 f_dir=/det_rd_results/sipm_anal/laser_an/util
+
+*     scan [nscan] waveforms from a [file_t] for temperature step [it]
+*     and voltage step [iv] starting from waveform [nev]
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+exec open_nt dir=[dir] it=[it] iv=[iv] file_t=sweeps_nt lun=21
+exec open_nt dir=[dir] it=[it] iv=[iv] file_t=bascor_nt lun=22
+
+idn=30
+nbin = 10000
+
+exec vect_cre vecname=x len=[nbin]
+exec vect_cre vecname=y len=[nbin]
+
+*     load the function explicitely, nt/loop does not allow absolute adressing
+ 
+fun = display.f
+
+
+
+do iev = 1,[nev]
+
+   ffev = [fev] - 1 + [iev]
+   cd //lun21
+   nt/loop [idn] display.f 1 [ffev]
+   vec/cop y y0
+
+   cd //lun22
+   nt/loop [idn] display.f 1 [ffev]
+
+   igset plci 1
+   gra [nbin] x y0
+   igset plci 2
+   gra [nbin] x y sl
+   wait
+enddo
+
+

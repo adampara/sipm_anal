@@ -1,0 +1,22 @@
+macro get_rates_poison_it dir=../exp/Ham-025U-4_Oct_19 it=1 
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read volts [dir]/[t]/bias_volt.dat
+nvolt=$VLEN(volts)
+
+vec/create rate_pois(7,[nvolt])
+vec/create n_rate_pois(7,[nvolt])
+do iv = 1,[nvolt]
+   exec get_rates_poisson_it_iv dir=[dir] it=[it] iv=[iv] 
+   vec/copy rate(1:7) rate_pois(1:7,[iv])
+enddo
+
+do i = 1,5
+   vec/ope/vdiv rate_pois([i],1:16) rate_pois(6,1:16) n_rate_pois([i],1:16)
+enddo

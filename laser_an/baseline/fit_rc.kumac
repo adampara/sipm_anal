@@ -1,0 +1,54 @@
+macro fit_rc dir=../exp/Ham-025U-4_Oct_19   file_t=sweeps_nt nscan=5000   it1=1 it2=24 nscan=5000
+
+*   determine RC constant of the AC coupling
+*
+
+
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+exec ../setup
+
+hist/del 0
+opt liny
+
+do it = [it1],[it2]
+
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+
+	fun = fit_rc.f
+        
+	do iv = 1, [nvolt]
+		
+		v = vxyz([iv])
+*		exec scan dir=[dir] it=[it] iv=[iv] nev=1  file_t=[file_t]  nscan=[nscan] coh=[coh]exec
+                exec open_nt dir=[dir] it=[it] iv=[iv] file_t=[file_t]
+                idn = 30
+	        vec/read xinc [dir]/[t]/[v]_xinc.dat
+                nt/loop [idn] [fun] [nscan] 
+
+*		idh = 1000*[it] + [iv]
+*		text = Average waveform, T=[t] Vbias = [v]
+*		hist/copy 999 [idh] [text]
+*		hist/del 999
+                
+	enddo
+
+
+	vector/del vxyz
+
+*	file = [dir]/[t]_average_wf/average_waveforms_coh_[coh]_it_[it].hist
+*	mess histograms saved to file [file]
+*	exec save_hist idh=0 hist_file=[file]
+*	hist/del 0
+
+enddo
+
+
+
+ 

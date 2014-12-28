@@ -1,0 +1,40 @@
+      program pulses_ntuple
+
+      include 'pulses_ntuple.inc'
+      character*256 file
+
+      file = fort.17
+      open (unit=17,file=file,form=formatted)
+
+      do i=1,5000
+
+      read(17,*)file
+      read(17,*)nwf
+      read(17,*)gate
+      read(17,*)q
+      read(17,*)start
+      read(17,*)N_puls
+
+      print *,nwf
+      print *,gate
+      print *,q
+      print *,start
+      print *,N_puls
+
+      do i=1,N_puls
+         read(17,*)'  peak ',i
+         read(17,*)t(i),t_bef(i),t_aft(i)
+         read(17,*)chi_peak(i), chi_3tau(i)
+         read(17,*)ampl(i)
+         read(17,*)wid66(i),wid50(i),wid33(i)
+         read(17,*)q_bef(i)
+         print *,i
+         print *,t(i),t_bef(i),t_aft(i)
+         print *,chi_peak(i), chi_3tau(i)
+         print *,ampl(i)
+         print *,wid66(i),wid50(i),wid33(i)
+         print *,q_bef(i)
+      
+      enddo
+
+      end

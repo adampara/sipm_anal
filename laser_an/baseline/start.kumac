@@ -1,0 +1,11 @@
+macro start nev=1 fev=1 cut=0.02 n_window=500
+
+exec ../setup
+
+exec open_nt it=24 iv=16
+upper = ([n_window] + 0.5)*4.e-10
+h/cre/1d 99 aux [n_window] 2.e-10 [upper]
+h/cre/1d 98 rc 100 -2000. 0.
+
+nt/loop 30 fit_rc.f([n_window],[cut]) [nev] [fev]
+h/pl 99

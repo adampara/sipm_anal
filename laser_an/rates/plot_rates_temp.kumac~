@@ -1,0 +1,33 @@
+macro plot_rates_temp case=1 iv=10 it1=20 it2=24 vect=dark
+
+vec/read temp [dir]/temps.dat
+ntemp=$VLEN(temp)
+
+
+ 
+do jj = 1,6
+   vec/cre dark[jj](16,[ntemp])
+   vec/cre darke[jj](16,[ntemp])
+   vec/cre aftp[jj](16,[ntemp])
+   vec/cre aftpe[jj](16,[ntemp])
+enddo
+
+
+
+
+
+xl = temp([it1])-5.
+xu = temp([it2])+5.
+
+ym = 5*[vect][case]([it2])
+
+opt logy
+null [xl] [xu] 0.01 [ym]
+
+np = [it2] - [it1] + 1
+
+isymb=20
+do it = [it1],[it2]
+   isymb = [isymb] + 1
+   errors temp([i1]:[i2]) [vect][case]([iv],[it1]:[it2]) ! [vect]e[case]([it1]:[it2]) isymb 
+enddo

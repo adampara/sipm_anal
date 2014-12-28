@@ -1,0 +1,16 @@
+macro get_coh_noise ndat=10000 v=0.00 temp_dir=null coh=0
+
+*	load the coherent noise into the vector coh_n 
+*       for a given temperature and voltage [v]
+*       [coh] = 0 => no coherent noise (coh_n = 0)
+*       [coh] = 1 => actual vector read from the file 
+*
+
+    vec/del coh_n
+
+    if [coh] = 0 then
+    *    raw data
+    	vec/create coh_n([ndat]) R [ndat]*0
+    elseif [coh] = 1 then
+	vec/read coh_n [temp_dir]_noise/[v].coh_noise.dat
+    endif

@@ -1,0 +1,23 @@
+macro open_nt dir=data/Ham-025U-4_Oct_19 it=1 iv=1 file_t=sweeps_nt subdir=no lun=21
+
+*c     open hbook file [file_t] for a given temperature and voltage step
+*c     the file may reside in a subdirectory [subdir] of the [t] directory
+*c     but its name must start with [v].
+
+vector/read t123 [dir]/char/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+if [subdir] = 'no' then
+        temp_dir = [dir]/[t]
+else
+	temp_dir = [dir]/[t]/[subdir]
+endif
+
+close [lun]
+hist/file [lun] [temp_dir]/[v].[file_t] 0

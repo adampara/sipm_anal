@@ -1,0 +1,98 @@
+macro rate_vs_time amu=20.0
+
+*      
+n_aft = 3
+nbin = 1000
+vec/create cont([nbin])
+vec/cre p_aft([n_aft]) R  0.3 0.6 0.95 
+
+do ip = 1,[n_aft]
+
+   pp = p_aft([ip])
+   file = afterpulse_amu_[amu]_fr1_[pp].his
+   close 21
+   hist/file 21 [file]
+   opt nsta
+   hist/pl 101
+   idh = -[ip]
+   title  ' '
+   hist/copy 101 [idh] '.'
+   hist/get/cont [idh] cont
+   hist/pl 98
+   nev = $HINFO(98,'ENTRIES')
+   nbins = $HINFO([idh],'XBINS')
+   xmin = $HINFO([idh],'XMIN')
+   xmax = $HINFO([idh],'XMAX')
+
+   dt = ([xmax] - [xmin])/[nbins]
+
+   t_rate = [amu]/([xmax] - [xmin])
+   fact = 1./([nev] * [dt])
+   vec/ope/vsca cont [fact] cont
+   hist/put/cont [idh] cont
+   *wait
+enddo
+
+   zone 1 1
+   opt liny
+   opt nsta
+
+   ymax = $HINFO(-3,'MAX')
+
+   xpos = 0.3*[xmax]
+
+   ypos = 0.7*[ymax]
+   col = 2
+   mtyp = 20
+   paft = p_aft(3)
+   pmci = [col]
+   plci = [col]
+   set hcol [col]
+   igset pmci [pmci]
+   igset mtype [mtyp]
+   igset plci [plci] 
+
+   hist/pl -3
+
+   text = True rate = [t_rate] P(aft) = [paft]
+   key [xpos] [ypos] [mtyp] [text] 0.35 
+
+   ypos = 0.6*[ymax]
+   col = 3
+   mtyp = 23
+   paft = p_aft(2)
+   pmci = [col]
+   plci = [col]
+   set hcol [col]
+   igset pmci [pmci]
+   igset mtype [mtyp]
+   igset plci [plci] 
+
+   hist/pl -2 s
+
+   text = True rate = [t_rate] P(aft) = [paft]
+   key [xpos] [ypos] [mtyp] [text] 0.35 
+
+   ypos = 0.5*[ymax]
+   col = 4
+   mtyp = 29
+   paft = p_aft(1)
+   pmci = [col]
+   plci = [col]
+   set hcol [col]
+   igset pmci [pmci]
+   igset mtype [mtyp]
+   igset plci [plci] 
+
+   hist/pl -1 s
+
+   text = True rate = [t_rate] P(aft) = [paft]
+   key [xpos] [ypos] [mtyp] [text] 0.35 
+
+
+
+   atitle 'Time, sec      .'   'Instantenous rate, Hz '
+
+
+wait
+postbb figs/rate_vs_time.eps

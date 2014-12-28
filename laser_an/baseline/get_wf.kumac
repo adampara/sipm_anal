@@ -1,0 +1,34 @@
+macro get_wf nev=1 iv=16  it=24 log=0 i1=1 i2=10000
+
+zone 1 3
+
+vec/del x
+vec/del y
+vec/del z
+
+exec open_nt it=[it] iv=[iv]
+exec scan it=[it] iv=[iv] nev=[nev] nscan=1
+vec/ope/vsca y -1. z   
+vec/cre par(3)
+bias = -[i1]
+vec/ope/vbias x [bias] x
+
+*    single exponential fit
+vec/fit x([i1]:[i2]) z([i1]:[i2]) ! e ! 2 par
+ww0 = par(1)
+vv0 = par(2)
+
+*   exponential + offset
+vec/fit x([i1]:[i2]) z([i1]:[i2]) ! e+p0 ! 3 par
+ww = par(1)
+vv=par(2)
+zz=par(3)
+
+
+text = [ww0] [vv0] [ww] [vv] [zz] [nev] [i1] [i2] [it] [iv]
+
+mess [text]
+if [log]>0 then
+   file = RC_const_it_[it]_iv_[iv].dat_v3
+   fmess [text] [file]
+endif

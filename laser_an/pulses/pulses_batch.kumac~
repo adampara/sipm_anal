@@ -1,0 +1,42 @@
+macro pulses_batch it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=5000 itempl=7 cut=3 chicut=10. file_t=bascor_nt
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+ 
+	vt=voltz([itempl])
+ 	vt = $FORMAT([vt],f5.2)
+
+mess  pulses batch: it = [it] iv = [iv] dir=[dir] nev=[nev]
+vec/read templ [dir]/[t]_templates/[vt].template_laser_[file_t]_all.dat 
+vec/read coh_noi [dir]/[t]_noise/[v].coh_noise_[file_t].dat
+
+
+exec vect_cre vecname=cut_noise len=1
+vec/input cut_noise(1) 0.
+
+vec/read noise_sigma [dir]/[t]_noise/baseline_sigma_[file_t]_coh_1.dat
+sig_noi = [cut]*noise_sigma([iv])
+
+vec/cre sampl(1) R 5.e-10
+vec/cre tau(1) R 5.e-9
+
+exec open_nt it=[it] iv=[iv] dir=[dir] file_t=[file_t]
+
+file = pulses_[file_t]_[t]_[v]
+
+fort/file 37 [file] 
+mess file is [file]
+units
+*wait
+nt/loop 30 pulse_an.f([sig_noi],[chicut]) [nev]  [fev]
+close 37
+sh make_ntuple [file]
+
+sh mv [file].nt [dir]/[t]_pulses/[v]_pulses_[file_t].nt
+sh mv [file] [dir]/[t]_pulses/[v]_pulses_[file_t]

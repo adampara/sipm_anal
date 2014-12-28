@@ -1,0 +1,11 @@
+macro vect_cre vecname=x len=1
+
+*    create vector [vecname] with length [len]
+*    delete such a vecor if it already exists
+
+if $VEXIST([vecname]) > 0 then
+   vector/delete [vecname]
+endif
+
+vector/create [vecname]([len])
+ 

@@ -1,0 +1,19 @@
+macro make_template_it  it=5  dir=../exp/Ham-025U-4_Oct_19  nev=5000 lgl=4980 lgu=5040 low_edge=180  upp_edge=400 deb=0
+
+*   construct templates for all voltages at given it
+*   selecting pulses in the laser gate by the ratio of area to peak
+*   highest peak within the laser gate [lgl] to ]lgu] is used
+*   area is calculated from [low_edge] to [upp_edge], max pulse being in bin 201
+
+	       
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	nvolt=$VLEN(voltz)
+
+	do iv=1,[nvolt]	
+
+		exec template_it_iv it=[it] iv=[iv] dir=[dir]  upp_edge=[upp_edge] nev=[nev] lgl=[lgl] lgu=[lgu] low_edge=[low_edge] deb=0
+
+	enddo

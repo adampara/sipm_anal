@@ -1,0 +1,131 @@
+macro baseline_correct dir=../exp/Ham-025U-4_Oct_19 it=24 iv=16 nev=1 fev=1 tau=1.e-4 i1=1 i2=10000 v0=0.
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat                | temperatures recorded in this experiment
+t= temp([it])
+mess t= [t]
+dir_temp = [dir]/[t]               
+vec/read voltzz [dir_temp]/bias_volt.dat          | bias voltages at this temperature
+v=voltzz([iv])                                           | actual voltage
+v=$FORMAT([v],F5.2)                                     | force two digits
+
+vec/read yinc(1) [dir_temp]/[v]_yinc.dat                | scope resolution
+ystep = yinc(1)
+mess ystep = [ystep]
+vec/cre p(3)
+
+noff = 50                       | 2*noff+1 is a nuber of offest steps
+ndim = 2*[noff] + 1
+
+vec/cre mean([ndim])
+vec/cre sig([ndim])
+vec/cre voff([ndim])
+vec/cre ix([ndim])
+
+*                   book histograms for 'slopes' of the waveform after a correction
+*                   for different values of an offset, voff,  (Hough transform)
+
+lower = -0.01*[ystep]
+upper = -[lower]
+nbins=101
+dx = 2*[upper]/[nbins]
+vec/create cont([nbins])
+
+do j=-[noff],[noff]
+   idh = 900 + [j]
+   hist/cre/1d [idh] v [nbins] [lower] [upper]
+   idh1 = [idh]+1000
+   hist/create/1d [idh1] corr 10000 0.5 10000.5
+   vv = 1.0 * [j] * [ystep]    
+*   step offests in 0.5*sensitivity increments
+   ind = [j] + 1 + [noff]
+   vec/inp voff([ind]) [vv]
+enddo
+
+mess histogram limits [lower] [upper]
+*wait
+
+exec open_nt it=[it] iv=[iv]
+
+vec/del v
+vec/cre v(10000) R
+vec/del wavef
+vec/cre wavef(10000) R
+vec/cre v(10000) R
+vec/del bs
+vec/cre bs(10000) R
+
+lastev = [fev] + [nev] -1
+ 
+
+v0 = [ystep]
+ 
+do  iev = [fev],[lastev]
+
+   title = waveform number [iev]
+   hist/create/tit [title] 
+   zone 1 4
+   nt/loop 30 baseline_correct.f([tau],[noff]) 1 [iev]
+
+   do j=-[noff],[noff]
+
+    	 idh = 900 + [j] 
+    	 maxcon= $HINFO([idh],'MAX')
+   
+     	 ind = [j] + 1 + [noff]
+
+   	 hist/get/cont [idh] cont
+  	 maxpos =  $sigma(LVMAX(cont))
+   	 vec/inp mean([ind]) [maxpos]
+  	 maxval = [maxpos]*[dx] + [lower]
+   	il =  [maxpos]-5
+   	iu = [maxpos] + 5
+   	hist/fit [idh]([il]:[iu]) g q0
+   	call fitpar.f
+   	vec/inp ix([ind]) [ind]
+   	vec/cop p(2) sig([ind])
+*        zone 1 2
+*        hist/pl [idh]
+*        idh1 = 1000+[idh]
+*        hist/pl [idh1]
+*        vec/pri p
+*        mess limits [il] [iu] maxpos [maxpos]
+*        wait
+   enddo
+
+*   vec/draw mean
+*   vec/draw sig
+*   wait
+
+   
+   im =  $sigma(LVMIN(abs(mean)))
+   mess [im]
+   is = $sigma(LVMIN(abs(sig)))
+   ill = [is]-10
+   iuu = [is] + 10
+   if [ill]<1 then
+      ill=1
+   endif
+
+   mess fit window [ill] [iuu]
+   vec/fit ix([ill]:[iuu]) sig([ill]:[iuu]) ! p1
+   call fitpar.f
+
+   ii = -p(1)/p(2)
+   iii = $format([ii],i3)
+   mess '  value is ' [ii], [iii]
+
+   mess [is]
+   vval =  voff([is])
+    mess finel offest = [vval]
+   vec/cop voff([is]) voff(1) 
+   nt/loop 30 baseline_correct.f([tau],0) 1 [iev]
+   zone 1 4
+   h/fit 99 g
+*   h/fit 98 g
+   vec/draw wavef([i1]:[i2])
+   vec/draw v([i1]:[i2])
+   vec/draw bs([i1]:[i2])
+   wait
+enddo

@@ -1,0 +1,17 @@
+macro scan_range it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=1 il=1 iu=10000
+
+do iev = 1,[nev]
+
+   nevno = [fev] - 1 + [iev]
+
+   exec scan_wave it=[it] iv=[iv] dir=[dir]  fev=[nevno] nev=1 il=[il] iu=[iu]
+
+   npuls = np(1)
+   mess scan event [nevno] it=[it] iv=[iv] number of pulses = [npuls]
+   if [npuls]>0 then
+      vec/pri tim(1:[npuls])
+   endif
+
+   wait
+
+enddo

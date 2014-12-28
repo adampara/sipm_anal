@@ -1,0 +1,7 @@
+      integer function locate_1pe
+
+      locate_1pe = 10
+
+      end
+
+      

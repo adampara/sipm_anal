@@ -1,0 +1,106 @@
+macro rand_afterp_an_full ntry=100000 nbin=100 xup=2.e-6 fr1=0.5 fr2=1.0 amu=2.0
+
+exec ../setup
+
+ngates = 20
+vec/cre gate([ngates]) R 1.e-8 2.e-8 3.e-8 4.e-8 5.e-8 6.e-8 7.e-8 8.e-8 9.e-8 1.e-7 1.5e-7 2.e-7 2.5e-7 3.e-7 3.5e-7 4.e-7  5.e-7 7.e-7 1.e-6 2.e-6
+
+hist/del 0
+close 21
+hist/file 21 afterpulse_amu_[amu]_fr1_[fr1].his
+cd //lun21
+
+
+vec/cre cont(2000)
+vec/cre res(2)
+vec/cre nzero([ngates])
+vec/cre prob([ngates])
+vec/cre aver([ngates])
+
+do ig = 1,[ngates]
+        idh = 400 + [ig]
+        hist/get/cont [idh] cont
+        nall = $HINFO([idh],'ENTRIES')
+        mess  Nall = [nall]
+        pr = cont(1)/[nall]
+        mess pr = [pr]
+        vec/inp prob([ig]) [pr]
+ 
+        nave = $HINFO([idh],'MEAN')
+        mess  Nave = [nave]
+        vec/inp aver([ig]) [nave]
+enddo
+
+sigma mean = -log(prob)
+
+vec/ope/vdiv mean gate rate
+
+vec/print rate
+*wait
+
+ntest = 99
+vec/cre ptest([ntest]
+
+hist/copy 401 999
+hist/ope/res 999
+do ig = 1,[ntest]
+        idh = 500 + [ig]
+        hist/ope/add [idh] 999 999
+        hist/get/cont [idh] cont
+        nall = $HINFO([idh],'ENTRIES')
+*        mess  Nall = [nall]
+        pr = cont(1)/[nall]
+*        mess pr = [pr]
+        vec/inp ptest([ig]) [pr]
+enddo
+
+sigma tmean = -log(ptest)
+
+scf = 1./gate(1)
+vec/ope/vscale tmean [scf] trate
+
+vec/print trate
+
+zone 1 2
+
+graph 20 gate rate
+vec/plot trate
+
+*wait
+
+hist/pl 98        
+nwave = $HINFO(98,'ENTRIES')
+mess [nwave]
+hist/pl 101
+timel = $HINFO(101,'XMIN')
+
+timeu = $HINFO(101,'XMAX')
+nbin  = $HINFO(101,'XBINS')
+binsiz = ([timeu] - [timel])/([nbin])
+
+mess timing bin size [binsiz]
+
+vec/cre par(3)
+hist/fit 101(750:1000) p0
+
+exec get_fitpar np=1
+
+aver = par(1)
+obs_rate = [aver]/([binsiz]*[nwave])
+true_rate = [amu]/([timeu]-[timel])
+rate2us = rate(20)
+mess observed rate [obs_rate] true rate [true_rate] rate 2 um [rate2us]
+
+vec/inp res(1:2)  [true_rate]   [obs_rate]
+
+h/pl 96
+
+rms_mul = $HINFO(96,'RMS')
+ave_mul = $HINFO(96,'MEAN')
+
+rr =  [ave_mul]/[rms_mul]
+n_eq = [rr]*[rr]
+
+mess n events = [n_eq]
+
+vec/inp n_equiv(1) [n_eq]

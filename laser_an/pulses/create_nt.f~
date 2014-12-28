@@ -1,0 +1,15 @@
+      subroutine create_nt
+
+      include 'pulses_inc.f'
+
+      call HBNT(50,'Pulses',' ')
+
+      call HBNAME(50,'Pulse',N_wf,
+     +    'N_wf,gate(10),q(10),'//
+     +    'N_puls[0,50],'//
+     +    't[0,50],t_bef[0,50],t_aft[0,50],'//
+     +    'chi_peak[0,50],chi_3tau[0,50],'//
+     +    'ampl[0,50],'//
+     +    'wid66[0,50],wid50[0,50],wid33[0,50],'//
+     +    'q_bef[0,50]'
+     +     )

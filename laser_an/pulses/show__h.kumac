@@ -1,0 +1,8 @@
+macro show__h 
+
+do ih =  101,200
+
+   h/pl [ih]
+   wait
+
+enddo

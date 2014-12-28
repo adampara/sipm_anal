@@ -1,0 +1,19 @@
+macro hist_to_template idh=220
+
+*     normalize and store the template
+
+
+exec vect_cre vecname=newtempl len=1000
+hist/get/cont [idh] newtempl
+
+*   make sure that template is centered at 0 for large times
+vec/plot newtempl(500:1000)
+mean=-$HINFO(12345,'MEAN')
+vec/ope/vbias newtempl [mean] newtempl
+
+*   normalize the template to 1 at bin 201
+
+xn = 1./newtempl(201)
+
+vec/ope/vscale newtempl [xn] newtempl
+

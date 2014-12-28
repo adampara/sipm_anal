@@ -1,0 +1,50 @@
+ ******************************************************
+ *                                                    *
+ *            W E L C O M E    to   P A W             *
+ *                                                    *
+ *       Version 2.14/04      12 January 2004         *
+ *                                                    *
+ ******************************************************
+ Workstation type (?=HELP) <CR>=1 :  Version 1.29/04 of HIGZ started
+ *** Using default PAWLOGON file "/home/cepa01/para/.pawlogon.kumac"
+
+ Welcome to PAW via the default PAWLOGON
+PAW [1] exec baseline_restore  noff=40 fev=137 it=24  nev=20
+ Macro search order is Command
+ *** VECTOR/READ: Unknown vector TEMP is created with length 24
+ t= 55
+ *** VECTOR/READ: Unknown vector VOLTZZ is created with length 16
+ *** VECTOR/READ: Unknown vector YINC(1) is created with length 1
+ ystep = 0.00625
+ *** VECTOR/CREATE VCOUNT(81,81): existing vector VCOUNT(81) replaced
+ histogram limits -6.25E-05 6.25E-05
+ *** VECTOR/READ: Unknown vector T123 is created with length 24
+ *** VECTOR/READ: Unknown vector V123 is created with length 16
+ Unit  21 is not active
+ RZOPEN. Cannot determine record length -  EXCHANGE mode is used.
+ *** Unknown vector V                               
+ *** Unknown vector WAVEF                           
+ *** VECTOR/CREATE V(10000): existing vector V(10000) replaced
+ *** Unknown vector BS                              
+   voffi, voffk  0.6250000E-02 -0.1000000             42         25       8046
+   voffi, voffk  0.1250000E-01 -0.9375000E-01         43         26       9190
+   voffi, voffk -0.1000000      0.8750000E-01         25         55       1782
+   voffi, voffk -0.1250000      0.2500000             21         81        546
+   voffi, voffk -0.3750000E-01 -0.1687500             35         14       4919
+   voffi, voffk   0.000000     -0.9375000E-01         41         26       7100
+   voffi, voffk -0.6250000E-01 -0.1687500             31         14       3872
+   voffi, voffk  0.6250000E-02 -0.1875000E-01         42         38       8676
+   voffi, voffk  0.2500000E-01 -0.3125000E-01         45         36       6479
+   voffi, voffk   0.000000     -0.1187500             41         22       6212
+   voffi, voffk  0.1875000E-01 -0.6875000E-01         44         30       5018
+   voffi, voffk -0.6250000E-02 -0.4375000E-01         40         34       4166
+   voffi, voffk  0.6250000E-02 -0.2500000E-01         42         37       4235
+   voffi, voffk -0.8750000E-01 -0.1625000             27         15       4324
+   voffi, voffk  0.6250000E-02 -0.6875000E-01         42         30       9150
+   voffi, voffk  0.3750000E-01 -0.6250000E-01         47         31       4334
+   voffi, voffk -0.1250000E-01 -0.1812500             39         12       5622
+   voffi, voffk  0.6250000E-02   0.000000             42         41       9014
+   voffi, voffk  0.1875000E-01 -0.5625000E-01         44         32       7270
+   voffi, voffk  0.1875000E-01 -0.1250000E-01         44         39       6938
+PAW [2] quit
+ Exiting from PAW.

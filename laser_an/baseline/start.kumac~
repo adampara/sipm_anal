@@ -1,0 +1,10 @@
+macro start
+
+exec setup
+
+exec open_nt it=24 iv=16
+
+h/cre/1d 99 aux 500 0.5 500.5
+h/cre/1d 98 rc 100 0. 10000.
+
+nt/loop 30 fit_rc.f(500,0.02)

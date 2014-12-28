@@ -1,0 +1,12 @@
+macro rates_it  it=5  dir=../exp/Ham-025U-4_Oct_19  file_t=pulses_bascor_nt.nt
+
+	       
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	nvolt=$VLEN(voltz)
+
+	do iv=1,[nvolt]	
+		exec rates_fin_it_iv dir=[dir] deb=0 it=[it] iv=[iv] file_t=[file_t]
+	enddo

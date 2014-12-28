@@ -1,0 +1,59 @@
+macro find_quench it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=1 il=1 iu=10000
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+
+mess T=[t] V=[v] iv=[iv]
+nmax_p=100
+exec vect_cre vecname=np  len=2
+exec vect_cre vecname=amp len=[nmax_p]
+exec vect_cre vecname=tim len=[nmax_p]
+exec vect_cre vecname=subtract len=10000
+exec vect_cre vecname=reconstr len=10000
+exec vect_cre vecname=f_wave len=10000
+
+*    create a list of found pulses in this frame
+
+do i = 1,100
+	idh = 100 + [i]
+        if $HEXIST([idh]) = 1 then
+            hist/del [idh]
+        endif
+        hist/cre/1d [idh] waveform 10000 0.5 10000.5
+enddo
+
+*wait
+vec/cre sampl(1) R 5.e-10
+vec/read templ [dir]/[t]_templates/[v].template_laser_all.dat 
+vec/read coh_noi [dir]/[t]_noise/[v].coh_noise.dat
+
+file_t = pulses.nt
+exec open_nt it=[it] iv=[iv] file_t=[file_t] an_dir=pulses
+file=[dir]/[t]_breakdown/[v]_1pe.dat
+vector/read pe_value [file]
+nt/loop 50 find_quench.f [nev] [fev]
+
+
+*   overlay the reconstructed waveform onto the raw data
+
+
+exec open_nt it=[it] iv=[iv] dir=[dir]
+evno = np(2)
+nt/loop 30 display_wave.f [nev]  [evno]
+
+
+
+zone 1 2
+set hcol 0
+hist/pl 101([il]:[iu])
+hist/pl 101([il]:[iu])
+set hcol 2
+hist/pl 102([il]:[iu]) s
+
+hist/pl 101

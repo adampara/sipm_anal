@@ -1,0 +1,103 @@
+macro get_rates_it dir=../exp/Ham-025U-4_Oct_19 it=1 
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read volts [dir]/[t]/bias_volt.dat
+nvolt=$VLEN(volts)
+
+vec/del aftepr
+vec/del afterp_p
+vec/del aft_p_er
+vec/del tot
+vec/del dark
+vect/cre afterp(6,[nvolt])
+vect/cre afterp_p(6,[nvolt])
+vect/cre aft_p_er(6,[nvolt])
+vect/cre tot(6,[nvolt])
+vect/cre dark(6,[nvolt])
+exec vect_cre vecname=t1 len=[nvolt]
+exec vect_cre vecname=t2 len=[nvolt]
+exec vect_cre vecname=par len=4
+exec vect_cre vecname=contd len=200
+exec vect_cre vecname=contl len=200
+exec vect_cre vecname=sum   len=100
+
+
+do iv = 1,[nvolt]
+
+   v = volts([iv])
+   exec get_rates_it_iv dir=[dir] it=[it] iv=[iv] 
+
+
+   do ipe = -1, 4
+
+
+      diffv   = -(([ipe]+2)*1000 + 100+[iv])
+      fpulsel = -(([ipe]+2)*1000 + 200+[iv])
+      fpulsed = -(([ipe]+2)*1000 + 300+[iv])
+      fpulse = -(([ipe]+2)*1000 + 400+[iv])
+
+
+      idhdiff = [it]*10000+[ipe]*100 + 3501
+      title = afterpulses, T=[t], V=[v]
+      hist/copy [idhdiff] [diffv] [title]
+
+      idhdiff = [it]*10000+[ipe]*100 + 2531
+      title = first pulse, dark T=[t], V=[v]
+      hist/copy [idhdiff] [fpulsed] [title]
+
+      idhdiff = [it]*10000+[ipe]*100 + 2561
+      title = first pulse, laserT=[t], V=[v]
+      hist/copy [idhdiff] [fpulsel] [title]
+
+      mess  Get_rates_it:  histograms id = [idhdiff] [diffv] [fpulsel] [fpulsed] 
+
+*        subtract dark distribution from the laser one
+*        normalizing the second half of the histograms
+*        dark pulses should not depend on the laser response
+*        use ipe=-1 (all waveforms)
+   ****  to be continued   ****
+*      h/fit [fpulse] e+e ! 4 par
+      *wait
+      vector/copy par(2) t1([iv])
+      vector/copy par(4) t2([iv])
+
+   enddo
+enddo
+
+   vec/ope/vdiv afterp tot afterp_p
+   sigma aft_err=sqrt(afterp)
+   vec/ope/vdiv aft_err tot aft_p_er
+   mess get_rates_it: fetched data for iv=[iv]
+   *wait
+
+do ipe = -1,4
+
+   store =  -(([ipe]+2)*1000)
+   iv = 1
+   first =  -(([ipe]+2)*1000 + 100+[iv])
+
+   hist/copy [first] [store] 
+   do iv=2,[nvolt]
+      diff =  -(([ipe]+2)*1000 + 100+[iv])
+      hist/ope/add [store] [diff] [store]
+   enddo
+enddo
+*   h/fit 200 e+e ! 4 par
+
+file_hist = [dir]/[t]_rates/rates.hist
+exec save_hist idh=0 hist_file=[file_hist]
+
+file_dark = [dir]/[t]_rates/dark_rates.dat
+vec/write dark [file_dark]
+
+file_afterp_p = [dir]/[t]_rates/afterp_p.dat
+vec/write afterp_p [file_afterp_p]
+
+file_aft_p_er = [dir]/[t]_rates/aft_p_er.dat
+vec/write aft_p_er [file_aft_p_er]

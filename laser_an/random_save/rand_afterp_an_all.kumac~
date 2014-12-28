@@ -1,0 +1,38 @@
+macro rand_afterp_an_all ntry=100000 nbin=100 xup=2.e-6 fr1=0.5 fr2=1.0 amu=2.0
+
+*   anlyze all multiplicities and afterpulsing probalities
+
+naft = 10
+vec/create ap(1[naft]) R 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.95
+nmul = 8
+vec/crea mult([nmul]) R 0.5 1.0 2.0 5.0 7.5 10.0 15.0 20.0
+ngates = 20
+vect/crea ratg([ngates],[nmul],[naft])
+vect/crea ratt([nmul],[naft])
+vect/crea rato([nmul],[naft])
+vect/crea n_eq([nmul],[naft])
+vect/crea n_eq_norm([nmul],[naft])
+vec/cre n_equiv(1)
+vec/cre n_equiv_n(1)
+
+do im = 1,[nmul]
+   amu = mult([im])
+   ndig=3
+   if [amu]>9.9 then
+      ndig=4
+   endif
+   amu = $format([amu],f[ndig].1)
+    do ip = 1,[naft]
+       fr = ap([ip])
+       exec rand_afterp_an_full fr1=[fr] amu=[amu]
+       xn = 1./res(1)
+       vec/ope/vsca rate [xn] rate
+       vec/copy rate(1:[ngates]) ratg(1:[ngates],[im],[ip])
+       vec/cop res(1:1) ratt([im],[ip])
+       vec/cop res(2:2) rato([im],[ip])
+       vec/cop n_equiv(1:1) n_eq([im],[ip])
+       xn = 1./[amu]
+       vec/ope/vsca n_equiv [xn] n_equiv_n
+       vec/cop n_equiv_n(1:1) n_eq_norm([im],[ip])
+    enddo
+enddo

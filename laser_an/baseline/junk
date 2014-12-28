@@ -1,0 +1,230 @@
+ ******************************************************
+ *                                                    *
+ *            W E L C O M E    to   P A W             *
+ *                                                    *
+ *       Version 2.14/04      12 January 2004         *
+ *                                                    *
+ ******************************************************
+ Workstation type (?=HELP) <CR>=1 :  Version 1.29/04 of HIGZ started
+ *** Using default PAWLOGON file "/home/cepa01/para/.pawlogon.kumac"
+
+ Welcome to PAW via the default PAWLOGON
+PAW [1] exec baselin_restor_2  fev=1 it=24  nev=200 noffs=50
+ Macro search order is Command
+ *** VECTOR/READ: Unknown vector TEMP is created with length 24
+ t= 55
+ *** VECTOR/READ: Unknown vector VOLTZZ is created with length 16
+ *** VECTOR/READ: Unknown vector YINC(1) is created with length 1
+ ystep = 0.00625
+ it = 24 iv = 16 noff = 50
+ histogram limits -6.25E-05 6.25E-05
+ *** VECTOR/READ: Unknown vector T123 is created with length 24
+ *** VECTOR/READ: Unknown vector V123 is created with length 16
+ Unit  21 is not active
+ RZOPEN. Cannot determine record length -  EXCHANGE mode is used.
+ *** Unknown vector V                               
+ *** Unknown vector WAVEF                           
+ *** VECTOR/CREATE V(10000): existing vector V(10000) replaced
+ *** Unknown vector BS                              
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8103
+   voffi, voffk  0.6250000E-02   0.000000             27          0       4809
+   voffi, voffk  0.2875000       0.000000             72          0       3661
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6481
+   voffi, voffk  0.3750000E-01   0.000000             32          0       4334
+   voffi, voffk  0.1062500       0.000000             43          0       4117
+   voffi, voffk  0.1250000E-01   0.000000             28          0       5054
+   voffi, voffk   0.000000       0.000000             26          0       2777
+   voffi, voffk  0.2125000       0.000000             60          0       6845
+   voffi, voffk   0.000000       0.000000             26          0       5897
+   voffi, voffk -0.1875000E-01   0.000000             23          0       6776
+   voffi, voffk   0.000000       0.000000             26          0       5682
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7715
+   voffi, voffk  0.6250000E-02   0.000000             27          0       7473
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7523
+   voffi, voffk   0.000000       0.000000             26          0       5691
+   voffi, voffk  0.4187500       0.000000             93          0       2523
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8871
+   voffi, voffk  0.4625000       0.000000            100          0        447
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5265
+   voffi, voffk  0.9375000E-01   0.000000             41          0       3547
+   voffi, voffk -0.1875000E-01   0.000000             23          0       8882
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7671
+   voffi, voffk   0.000000       0.000000             26          0       5874
+   voffi, voffk -0.6250000E-02   0.000000             25          0       9347
+   voffi, voffk -0.1062500       0.000000              9          0        440
+   voffi, voffk   0.000000       0.000000             26          0       8729
+   voffi, voffk  0.1437500       0.000000             49          0       5833
+   voffi, voffk  0.4000000       0.000000             90          0       2956
+   voffi, voffk -0.5000000E-01   0.000000             18          0        114
+   voffi, voffk -0.1062500       0.000000              9          0        330
+   voffi, voffk  0.6250000E-02   0.000000             27          0       1564
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8507
+   voffi, voffk  0.3875000       0.000000             88          0        766
+   voffi, voffk   0.000000       0.000000             26          0       9058
+   voffi, voffk  0.1750000       0.000000             54          0       3815
+   voffi, voffk  0.1250000E-01   0.000000             28          0       2399
+   voffi, voffk   0.000000       0.000000             26          0       7315
+   voffi, voffk  0.1875000E-01   0.000000             29          0       4066
+   voffi, voffk -0.6250000E-02   0.000000             25          0       6618
+   voffi, voffk  0.6250000E-02   0.000000             27          0       3215
+   voffi, voffk   0.000000       0.000000             26          0       6062
+   voffi, voffk  0.3375000       0.000000             80          0        498
+   voffi, voffk  0.9375000E-01   0.000000             41          0       1332
+   voffi, voffk   0.000000       0.000000             26          0       6452
+   voffi, voffk   0.000000       0.000000             26          0       6375
+   voffi, voffk   0.000000       0.000000             26          0       6703
+   voffi, voffk  0.4375000E-01   0.000000             33          0       1243
+   voffi, voffk -0.6250000E-02   0.000000             25          0       3902
+   voffi, voffk  0.6250000E-02   0.000000             27          0       2465
+   voffi, voffk  0.4250000       0.000000             94          0       6365
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5596
+   voffi, voffk  0.1125000       0.000000             44          0       3828
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7583
+   voffi, voffk  0.9375000E-01   0.000000             41          0       7082
+   voffi, voffk  0.5625000E-01   0.000000             35          0       3341
+   voffi, voffk  0.1250000E-01   0.000000             28          0       3256
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5520
+   voffi, voffk  0.3750000       0.000000             86          0       2920
+   voffi, voffk   0.000000       0.000000             26          0       5874
+   voffi, voffk  0.1187500       0.000000             45          0       3188
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7044
+   voffi, voffk   0.000000       0.000000             26          0       6617
+   voffi, voffk  0.6250000E-02   0.000000             27          0       8417
+   voffi, voffk -0.1250000E-01   0.000000             24          0       7513
+   voffi, voffk  0.3562500       0.000000             83          0       4953
+   voffi, voffk -0.8125000E-01   0.000000             13          0        358
+   voffi, voffk -0.3125000E-01   0.000000             21          0        443
+   voffi, voffk   0.000000       0.000000             26          0       7385
+   voffi, voffk -0.6250000E-02   0.000000             25          0       4638
+   voffi, voffk  0.6250000E-02   0.000000             27          0       3789
+   voffi, voffk   0.000000       0.000000             26          0       6876
+   voffi, voffk   0.000000       0.000000             26          0       6833
+   voffi, voffk -0.6250000E-02   0.000000             25          0       6157
+   voffi, voffk  0.2562500       0.000000             67          0       7938
+   voffi, voffk  0.5625000E-01   0.000000             35          0       4470
+   voffi, voffk -0.1875000E-01   0.000000             23          0       6287
+   voffi, voffk  0.8750000E-01   0.000000             40          0       5410
+   voffi, voffk  0.6250000E-02   0.000000             27          0       8715
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7781
+   voffi, voffk -0.1250000E-01   0.000000             24          0       8421
+   voffi, voffk  0.5000000E-01   0.000000             34          0       4797
+   voffi, voffk   0.000000       0.000000             26          0       7277
+   voffi, voffk  0.2750000       0.000000             70          0       1892
+   voffi, voffk   0.000000       0.000000             26          0       3850
+   voffi, voffk  0.6250000E-02   0.000000             27          0       3131
+   voffi, voffk  0.2437500       0.000000             65          0       2523
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8902
+   voffi, voffk  0.1250000E-01   0.000000             28          0       8884
+   voffi, voffk  0.1250000       0.000000             46          0       7987
+   voffi, voffk   0.000000       0.000000             26          0       2904
+   voffi, voffk  0.1250000E-01   0.000000             28          0       5349
+   voffi, voffk  0.2125000       0.000000             60          0       8481
+   voffi, voffk   0.000000       0.000000             26          0       4895
+   voffi, voffk  0.6250000E-01   0.000000             36          0       1481
+   voffi, voffk   0.000000       0.000000             26          0       3003
+   voffi, voffk  0.1187500       0.000000             45          0       9034
+   voffi, voffk -0.6250000E-02   0.000000             25          0       4751
+   voffi, voffk -0.6250000E-02   0.000000             25          0       3208
+   voffi, voffk  0.6250000E-02   0.000000             27          0       7277
+   voffi, voffk -0.6250000E-02   0.000000             25          0       9541
+   voffi, voffk  0.4375000E-01   0.000000             33          0       7251
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8851
+   voffi, voffk  0.3687500       0.000000             85          0        485
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8208
+   voffi, voffk  0.2187500       0.000000             61          0       1265
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5900
+   voffi, voffk -0.1875000E-01   0.000000             23          0       7212
+   voffi, voffk -0.6250000E-02   0.000000             25          0       4973
+   voffi, voffk -0.2500000E-01   0.000000             22          0       5776
+   voffi, voffk -0.1875000E-01   0.000000             23          0       4093
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8392
+   voffi, voffk  0.6250000E-02   0.000000             27          0        985
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7320
+   voffi, voffk  0.6250000E-02   0.000000             27          0       6670
+   voffi, voffk  0.6250000E-01   0.000000             36          0        813
+   voffi, voffk   0.000000       0.000000             26          0       1781
+   voffi, voffk  0.6250000E-01   0.000000             36          0       6069
+   voffi, voffk  0.1500000       0.000000             50          0       1072
+   voffi, voffk  0.6250000E-02   0.000000             27          0       4514
+   voffi, voffk  0.6250000E-02   0.000000             27          0       4477
+   voffi, voffk   0.000000       0.000000             26          0       8075
+   voffi, voffk   0.000000       0.000000             26          0       5681
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8195
+   voffi, voffk  0.6250000E-02   0.000000             27          0       6576
+   voffi, voffk  0.1062500       0.000000             43          0       5843
+   voffi, voffk -0.1250000E-01   0.000000             24          0       3954
+   voffi, voffk   0.000000       0.000000             26          0       4299
+   voffi, voffk -0.1250000E-01   0.000000             24          0       7581
+   voffi, voffk   0.000000       0.000000             26          0       2436
+   voffi, voffk  0.1250000E-01   0.000000             28          0       3932
+   voffi, voffk  0.1875000E-01   0.000000             29          0       3594
+   voffi, voffk -0.1875000E-01   0.000000             23          0       6646
+   voffi, voffk   0.000000       0.000000             26          0       4913
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6074
+   voffi, voffk   0.000000       0.000000             26          0       6497
+   voffi, voffk  0.3187500       0.000000             77          0       7497
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6593
+   voffi, voffk  0.4687500       0.000000            101          0        514
+   voffi, voffk -0.3750000E-01   0.000000             20          0        297
+   voffi, voffk  0.2500000E-01   0.000000             30          0       4408
+   voffi, voffk  0.1250000E-01   0.000000             28          0       6722
+   voffi, voffk  0.1250000E-01   0.000000             28          0       3619
+   voffi, voffk -0.1250000E-01   0.000000             24          0       7869
+   voffi, voffk -0.1250000E-01   0.000000             24          0       5819
+   voffi, voffk  0.6250000E-01   0.000000             36          0       5197
+   voffi, voffk -0.1250000E-01   0.000000             24          0       4573
+   voffi, voffk   0.000000       0.000000             26          0       3964
+   voffi, voffk -0.6250000E-02   0.000000             25          0       3905
+   voffi, voffk  0.3437500       0.000000             81          0        119
+   voffi, voffk -0.6250000E-02   0.000000             25          0       8868
+   voffi, voffk -0.1250000E-01   0.000000             24          0       3674
+   voffi, voffk  0.3125000E-01   0.000000             31          0       5139
+   voffi, voffk   0.000000       0.000000             26          0       8493
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6003
+   voffi, voffk -0.1875000E-01   0.000000             23          0       6416
+   voffi, voffk  0.4375000E-01   0.000000             33          0       5323
+   voffi, voffk -0.6250000E-02   0.000000             25          0       2195
+   voffi, voffk  0.4375000E-01   0.000000             33          0       6664
+   voffi, voffk -0.1250000E-01   0.000000             24          0       8503
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5588
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5654
+   voffi, voffk -0.6250000E-02   0.000000             25          0       5873
+   voffi, voffk -0.1875000E-01   0.000000             23          0       6215
+   voffi, voffk   0.000000       0.000000             26          0       5538
+   voffi, voffk  0.4687500       0.000000            101          0        221
+   voffi, voffk -0.1250000       0.000000              6          0         47
+   voffi, voffk  0.1125000       0.000000             44          0       5090
+   voffi, voffk   0.000000       0.000000             26          0       6713
+   voffi, voffk  0.1062500       0.000000             43          0       8545
+   voffi, voffk   0.000000       0.000000             26          0       4910
+   voffi, voffk  0.5000000E-01   0.000000             34          0       6121
+   voffi, voffk  0.6250000E-02   0.000000             27          0       6054
+   voffi, voffk  0.4375000E-01   0.000000             33          0       1179
+   voffi, voffk  0.1250000E-01   0.000000             28          0       1782
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6517
+   voffi, voffk  0.4687500       0.000000            101          0        129
+   voffi, voffk -0.1250000E-01   0.000000             24          0       6147
+   voffi, voffk   0.000000       0.000000             26          0       9472
+   voffi, voffk  0.2250000       0.000000             62          0       1415
+   voffi, voffk  0.1750000       0.000000             54          0        276
+   voffi, voffk -0.1875000E-01   0.000000             23          0       7196
+   voffi, voffk -0.1875000E-01   0.000000             23          0       5778
+   voffi, voffk -0.2500000E-01   0.000000             22          0       7614
+   voffi, voffk -0.6250000E-02   0.000000             25          0       7443
+   voffi, voffk   0.000000       0.000000             26          0       7291
+   voffi, voffk  0.4375000       0.000000             96          0        951
+   voffi, voffk -0.1250000E-01   0.000000             24          0       2074
+   voffi, voffk -0.1875000E-01   0.000000             23          0        325
+   voffi, voffk  0.3625000       0.000000             84          0       1440
+   voffi, voffk  0.1250000E-01   0.000000             28          0       4825
+   voffi, voffk -0.1250000E-01   0.000000             24          0       7389
+   voffi, voffk   0.000000       0.000000             26          0       8084
+   voffi, voffk   0.000000       0.000000             26          0       4842
+   voffi, voffk   0.000000       0.000000             26          0       6327
+   voffi, voffk -0.2500000E-01   0.000000             22          0       6170
+   voffi, voffk -0.6250000E-02   0.000000             25          0       6737
+   voffi, voffk   0.000000       0.000000             26          0       7163
+   voffi, voffk  0.3750000E-01   0.000000             32          0       6697
+   voffi, voffk -0.1250000E-01   0.000000             24          0       8210
+PAW [2] quit
+ Exiting from PAW.

@@ -1,0 +1,35 @@
+macro rand_gen ntry=100000 nbin=100 xup=1.e-7 fr1=0.5 fr2=1.0 amu=2.
+
+
+hist/cre/1d 99 random [nbin] 0. [xup]
+hist/cre/1d 100 first [nbin] 0. [xup]
+hist/cre/1d 98 poisson 20 -0.5 20.5
+
+xbin = [xup]/[nbin]
+mess xbin = [xbin]
+
+call /det_rd_results/sipm_anal/laser_an/random/rand_gen.f([ntry],[fr1],[fr2],[amu])
+
+vec/cre par(6) R 11.5 -1.e8 5. -1.e7 5. -1.e-6
+h/fit 99 e+e ! 4 par
+
+a1 = par(1)
+b1 = par(2)
+xn1 = $sigma(exp([a1]))
+xn1 = -([xn1]/[xbin])/[b1]
+
+a2 = par(3)
+b2 = par(4)
+xn2 = $sigma(exp([a2]))
+xn2 = -([xn2]/[xbin])/[b2]
+
+a3 = par(5)
+b3 = par(6)
+xn3 = $sigma(exp([a3]))
+xn3 = -([xn3]/[xbin])/[b3]
+
+xn = [xn1]+ [xn2] 
+check = [xn]/[ntry]
+mess [xn1] [xn2] [xn3] [xn] [ntry] [check]
+
+h/pl 98

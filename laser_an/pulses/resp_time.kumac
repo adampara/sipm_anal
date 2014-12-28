@@ -1,0 +1,15 @@
+macro resp_time it=1 iv=5
+
+*   analyze late/delayed pulses
+exec ../setup
+
+file_t = pulses.nt
+exec open_nt it=[it] iv=[iv] file_t=[file_t] an_dir=pulses
+
+hist/create/1d 101 'resp time, laser' 1000 -1.e-8 0.99e-6
+hist/create/1d 102 'resp time, rand' 1000 -1.e-8 0.99e-6
+
+hist/create/1d 103 'resp ampl, laser' 100 0. 0.1
+hist/create/1d 104 'resp ampl, rand' 100 0. 0.1
+
+nt/loop 50 resp_time.f(5.e-7,101)

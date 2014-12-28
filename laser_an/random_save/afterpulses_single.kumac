@@ -1,0 +1,401 @@
+macro afterpulses_single
+
+*      one afterpulse per pulse
+n_aft = 10
+nbin = 1000
+vec/create cont([nbin])
+vec/cre tau_0([nbin])
+vec/cre tau_1([nbin],[n_aft])
+vec/cre tau_2([nbin],[n_aft])
+vec/cre enf([n_aft])
+
+exec rand_afterp_an amu=-0.5 fr1=-0.5
+hist/get/cont 99 cont
+vec/cop cont(1:[nbin]) tau_0(1:[nbin])
+
+
+
+vec/cre p_aft([n_aft]) R  0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.95
+vec/cre aft_mult([n_aft])
+vec/cre aft_t([n_aft])
+vec/cre aft_tau([n_aft])
+vec/cre aft_tau_f([n_aft])
+
+vec/cre par1(2)
+vec/cre par2(2)
+vec/create en(1)
+
+do ip = 1,[n_aft]
+
+   mess ip=[ip]
+   fr = p_aft([ip])
+   exec rand_afterp_an amu=-0.5 fr1=[fr]
+
+   vec/copy en(1) enf([ip])
+   n_wave = $HINFO(100,'ENTRIES')
+   n_afterp = $HINFO(99,'ENTRIES')
+   x = [n_afterp]/[n_wave]
+   vec/input aft_mult([ip]) [x]
+   mess get mult
+   xl1 = -1./par1(2)
+   vec/input aft_tau([ip]) [xl1]
+   mess get xl1
+   xl2 = -1./par2(2)
+   vec/input aft_tau_f([ip]) [xl2]
+   a_t = [fr]/(1.-[fr])
+   vec/input aft_t([ip]) [a_t]
+
+*    get time distributions of afterpulses
+   mess after fits
+
+   hist/get/cont 99 cont
+   vec/cop cont(1:[nbin]) tau_1(1:[nbin],[ip])
+
+   hist/get/cont 102 cont
+   vec/cop cont(1:[nbin]) tau_2(1:[nbin],[ip])
+
+*wait
+
+enddo
+
+
+mess done loop
+
+zone 1 1
+opt nbox
+hist/crea/title '  '
+opt logy
+null 0. 1.0 0.1 50.
+igset mtyp 20
+igset mscf 0.9
+igset pmci 2
+
+*graph [n_aft] p_aft aft_mult 
+graph [n_aft] p_aft aft_mult sp
+set asiz 0.4
+set csiz 0.4
+set cshi 0.02
+igset pass 3
+key 0.2 10.5 20. 'Poisson distributed pulses' 
+igset plci 4
+igset mtyp 1
+graph [n_aft] p_aft aft_t spl
+set lwid 5.0
+vec/cre xx(2) R 0.175 0.225
+vec/cre yy(2) R 7. 7.
+graph 2 xx yy sl 
+text 0.25 6.5 P?aft!/(1.0-P?aft!) 0.55 ! L
+
+atitle 'afterpulse probability' 'number of afterpulses'
+postbb figs/number_of_afterpulses.eps
+
+wait
+
+*     excess noise factor
+
+opt liny
+
+igset mtyp 20
+igset pmci 2
+igset mscf 2.0
+igset plci 2
+n_aft_1 = [n_aft] - 1
+mess n_aft_1 [n_aft_1]
+null 0. 1. 0. 10. 
+graph [n_aft_1] p_aft enf spl 
+key 0.3 8.0 20 'exess noise factor' 0.3
+atitle 'Afterpulse probability' 'Excess noise factor'
+vec/ope/vbias p_aft 1.0 enf1
+igset mtype 29
+igset pmci 4
+igset plci 4
+ graph [n_aft_1] p_aft enf1 spl 
+key 0.3 7.0 29 '1 + P(afterpulse)' 
+postbb figs/ENF.eps
+wait
+
+*******************************************
+opt liny
+xup = p_aft([n_aft]) + 0.05
+null 0 [xup] 0. 1.e-6
+
+igset mtyp 20
+igset pmci 2
+igset mscf 2.0
+graph [n_aft] p_aft aft_tau sp
+graph [n_aft] p_aft aft_tau sp
+key 0.3 7.e-7 20 'all afterpulses' 0.3 0.
+
+*igset mtyp 29
+*igset pmci 4
+*graph [n_aft] p_aft aft_tau_f sp
+*key 0.3 5.e-7 29 'first afterpulse only' 0.3 0.
+atitle 'afterpulse probability' 'time costant, sec'
+
+postbb figs/all_time_constant.eps
+
+mess all time
+
+wait 
+
+*******************************************
+opt liny
+xup = p_aft([n_aft]) + 0.05
+null 0 [xup] 0. 20.
+
+scf = 1/5.e-8
+vec/ope/vsca aft_tau [scf] aft_tau_sc
+
+igset mtyp 20
+igset pmci 2
+igset mscf 2.0
+graph [n_aft] p_aft aft_tau_sc sp
+graph [n_aft] p_aft aft_tau_sc sp
+
+*igset mtyp 29
+*igset pmci 4
+*graph [n_aft] p_aft aft_tau_f sp
+*key 0.3 5.e-7 29 'first afterpulse only' 0.3 0.
+atitle 'afterpulse probability' 'time costant/tau'
+
+postbb figs/all_time_sc_constant.eps
+
+mess all time scaled
+
+wait 
+
+**************************************
+null 0 [xup] 3.5e-8 5.5e-8
+
+igset mtyp 29
+graph [n_aft] p_aft aft_tau_f sp
+atitle 'afterpulse probability' 'time_costant/tau'
+
+wait
+
+postbb figs/first_time_constant.eps
+mess first time constant
+wait
+
+****************************************
+
+null 0 [xup] 0.5 1.
+
+
+scf = 1/5.e-8
+vec/ope/vsca aft_tau_f [scf] aft_tau_f_sc
+
+igset mtyp 29
+graph [n_aft] p_aft aft_tau_f_sc sp
+atitle 'afterpulse probability' 'time costant/tau'
+
+wait
+
+postbb figs/first_time_sc_constant.eps
+mess first time constant scaled
+wait
+
+****************************************
+opt logy
+
+vec/cre tim(1000)
+del = 5.e-9
+
+do it = 1,1000
+   del = [del]+1.e-8
+   vec/inp tim([it]) [del]
+enddo
+
+invtim = 1./5.e-8
+vec/ope/vsca tim [invtim] tim_sc
+rat = tau_1(51,1)/tau_0(51)
+mess rat=[rat]
+wait
+
+zone 1 1
+
+opt logy
+opt nfit
+
+*hist/cre/tit 'Time distribution of afterpulses'
+ null 0 1.e-6 0.1 1.e4             
+vec/ope/vscale tau_0 [rat] tau_0_sc
+*vec/ope/vbias tau_1 0.1 tau_1
+*vec/ope/vbias tau_0_sc 0.1 tau_0_sc
+igset mscf 1.0
+
+
+yl = 1.e4
+xl = 6.e-7
+mt = 23
+igset mtype [mt]
+
+vec/cre col(6) I  2 3 4 7 6 1
+vec/cre pr(6) R 0.1 0.2 0.3 0.4 0.5 0.
+
+*************************************************
+do ic = 1,6
+  
+  vv=tau_1(51:150,[ic])
+  vvf=tau_1(51:100,[ic])
+  if [ic]=6 then
+      vv=tau_0_sc(51:100)
+      vvf=tau_0_sc(51:100)
+  endif
+  cli = col([ic])
+  igset plci [cli]
+  igset pmci [cli]
+  graph 100 tim(1:100) [vv]  spl
+  vec/fit tim(1:50) [vvf] ! e s
+
+  yl = [yl]/2.
+  prob = pr([ic])
+
+  text = probalility = [prob]
+  key [xl] [yl] [mt] [text] 0.3  
+
+
+enddo
+atitle 'time, sec        .' 'Number of of observed afterpulses' 
+postbb figs/time_const_0-0.5.eps
+mess time constant 0 -.5
+wait
+************************************************
+
+
+
+ null 0 20. 0.1 1.e4   
+yl = 1.e4
+xl = 12.
+mt = 23
+igset mtype [mt]
+
+do ic = 1,6
+  
+  vv=tau_1(51:150,[ic])
+  vvf=tau_1(51:100,[ic])
+  if [ic]=6 then
+      vv=tau_0_sc(51:100)
+      vvf=tau_0_sc(51:100)
+  endif
+  cli = col([ic])
+  igset plci [cli]
+  igset pmci [cli]
+  graph 100 tim_sc(1:100) [vv]  spl
+  vec/fit tim_sc(1:50) [vvf] ! e s
+
+  yl = [yl]/2.
+  prob = pr([ic])
+
+  text = probalility = [prob]
+  key [xl] [yl] [mt] [text] 0.3  
+
+
+enddo
+atitle 'time, in units of tau        .' 'Number of of observed afterpulses' 
+postbb figs/time_sc_const_0-0.5.eps
+mess time constant 0 -.5
+wait
+************************************************
+
+
+zone 1 1
+
+opt logy
+opt nfit
+
+*hist/cre/tit 'Time distribution of afterpulses'
+ null 0 1.e-5 0.1 1.e5             
+vec/ope/vscale tau_0 [rat] tau_0_sc
+*vec/ope/vbias tau_1 0.1 tau_1
+*vec/ope/vbias tau_0_sc 0.1 tau_0_sc
+igset mscf 1.0
+
+
+yl = 1.e5
+xl = 6.e-6
+mt = 23
+igset mtype [mt]
+
+vec/cre col(6) I  2 3 4 7 6 1
+vec/cre pr2(6) R 0.6 0.7 0.8 0.9 0.95 0.
+
+do ic = 1,6
+  
+
+  if [ic]=6 then
+      vv=tau_0(51:100)
+      vvf=tau_0(51:100)
+  else
+      ii = [ic]+5
+      vv=tau_1(51:1000,[ii])
+      vvf=tau_1(51:550,[ii])
+  endif
+  cli = col([ic])
+  igset plci [cli]
+  igset pmci [cli]
+  graph 950 tim(1:950) [vv]  spl
+  vec/fit tim(1:500) [vvf] ! e s
+
+  yl = [yl]/2.
+  prob = pr2([ic])
+  text = probalility = [prob]
+  key [xl] [yl] [mt] [text] 0.3  
+
+
+enddo
+
+atitle 'time, sec         .' 'Number of of observed afterpulses' 
+postbb figs/time_const_0.6-0.95.eps
+   
+
+*******************************************************
+
+zone 1 1
+
+opt logy
+opt nfit
+
+*hist/cre/tit 'Time distribution of afterpulses'
+ null 0 200. 0.1 1.e5             
+vec/ope/vscale tau_0 [rat] tau_0_sc
+*vec/ope/vbias tau_1 0.1 tau_1
+*vec/ope/vbias tau_0_sc 0.1 tau_0_sc
+igset mscf 1.0
+
+
+yl = 1.e5
+xl = 120
+mt = 23
+igset mtype [mt]
+
+vec/cre col(6) I  2 3 4 7 6 1
+vec/cre pr2(6) R 0.6 0.7 0.8 0.9 0.95 0.
+
+do ic = 1,6
+  
+
+  if [ic]=6 then
+      vv=tau_0(51:100)
+      vvf=tau_0(51:100)
+  else
+      ii = [ic]+5
+      vv=tau_1(51:1000,[ii])
+      vvf=tau_1(51:550,[ii])
+  endif
+  cli = col([ic])
+  igset plci [cli]
+  igset pmci [cli]
+  graph 950 tim_sc(1:950) [vv]  spl
+  vec/fit tim_sc(1:500) [vvf] ! e s
+
+  yl = [yl]/2.
+  prob = pr2([ic])
+  text = probalility = [prob]
+  key [xl] [yl] [mt] [text] 0.3  
+
+
+enddo
+
+atitle 'time in units of tau        .' 'Number of of observed afterpulses' 
+postbb figs/time_sc_const_0.6-0.95.eps

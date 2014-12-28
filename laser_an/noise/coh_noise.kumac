@@ -1,0 +1,151 @@
+macro coh_noise  it=10  nev=5000 wfll=1 wful=10000 nbatch=4 dir=../exp/Ham-025U-4_Oct_19 deb=0  file_t=bascor_nt
+
+*   determine the coherent noise of the measurement at the temperature step [it] 
+*   
+*   histogram each time bin of a waveform to get an average amplitude for each bin
+*   from a gaussian fit
+ 
+*c          it           = temperature step
+*c          file_t       = waveform file type (sweeps, gates)  
+*c          nbatch       = number of passes necessary to fit data in memory (4)
+
+*  L. Munoz and A. Para   July 18, 2013
+*  
+*  Aug 6, 20013   change fit to maximum likelihood
+*  Jun 22, 2014   add file type to names of created files
+exec setup
+kuip/set/filecase keep
+
+fort_dir = /det_rd_results/sipm_anal/fort_gen
+
+idn = 30
+
+
+zone 1						  
+
+vec/read temp [dir]/temps.dat                | temperatures recorded in this expriment
+t= temp([it])
+dir_temp = [dir]/[t]		   
+vec/read voltzz [dir_temp]/bias_volt.dat	  | bias voltages at this temperature
+nvolt = $VDIM(voltzz)
+
+vec/del coh_nois(10000)				  
+vec/del scope_r([nvolt])
+vec/del scope_res([nvolt])
+
+exec vect_cre vecname=coh_nois len=10000			  
+exec vect_cre vecname=scope_r len=[nvolt]
+exec vect_cre vecname=scope_res len=[nvolt]
+
+exec vect_cre vecname=par len=3
+exec vect_cre vecname=p1 len=1
+exec vect_cre vecname=p2 len=1
+exec vect_cre vecname=p3 len=1
+exec vect_cre vecname=yinc len=1 
+exec vect_cre vecname=aux len=1
+
+	do i=1,[nvolt]
+		
+		v=voltzz([i])			      			| actual voltage	
+		v=$FORMAT([v],F5.2)                   			| force two digits
+
+		vec/read yinc(1) [dir_temp]/[v]_yinc.dat		| scope resolution
+		ystep = yinc(1)
+                mess ystep = [ystep]
+		*wait
+		nbins = 100
+		range = [nbins]*[ystep]					| histogram window  
+		upper = [range]/2+0.5*[ystep]
+		lower =-[range]/2+0.5*[ystep]
+
+		exec open_nt iv=[i] it=[it] file_t=[file_t]		| open ntuple file
+		
+		*due to memory limits, the analysis must processed in different batches at one time
+		*This is the logic to parse the data depenedant of a number of batches selected default = 4
+		*  nbatch should be a divisor of 10000
+
+		nhist = 10000/[nbatch]				
+		
+		vec/read baseline_sigma [dir_temp]_noise/baseline_sigma_[file_t]_coh_0.dat	
+		vec/read baseline_mean [dir_temp]_noise/baseline_mean_[file_t]_coh_0.dat	
+
+		icutl=4950	
+		icutu=5040	
+		* laser window, lower and upper limit
+		javel=4950	
+		javeh=10000 	
+		* window where 'no pulse' waveforms are averaged, lower and upper limit
+
+		b_s=baseline_sigma([i])
+		sigma aux = [b_s]/sqrt([icutu] - [icutl])
+                sig = aux(1)
+		mean_noise=baseline_mean([i])
+		cut = ([mean_noise]+2*[sig])*([icutu]-[icutl]+1)	
+                mess cut = [cut]
+                *wait
+		
+		if [deb] > 0 then
+		       	 mess n_noise_scan: mean noise is [mean_noise] sigma is [sig]
+			 *wait
+		endif
+
+		do ib = 1,[nbatch]
+		
+			idhl = ([ib]-1)*[nhist] + 1	| lowest waveform slot
+			idhu = [ib]*[nhist]		| highest waveform slot
+
+			do j=[idhl],[idhu]		| book  histograms for this batch
+		     		idh = 1000 + [j]	
+				hist/crea/1d [idh] 'noise' [nbins] [lower] [upper]     
+			enddo
+			mess done with booking						       
+			*wait
+                	nt/loop 30 baseline.f([cut],[icutl],[icutu],[idhl],[idhu],[javel],[javeh]) [nev]
+		        *wait
+			do k=[idhl],[idhu]		| loop over histograms
+
+				idh = 1000+[k]
+
+				mm = $hinfo([idh],'MEAN')
+				rms = $hinfo([idh],'RMS')
+				ledge = [mm] - 3*[rms]		
+				uedge = [mm] + 3*[rms]		
+				nl = ([ledge]-[lower])/[ystep]-1
+				nr = ([uedge]-[lower])/[ystep]+1
+
+				nll = $Format([nl],i2)               
+				nrr = $Format([nr],i2)               
+				mess nll= [nll] nrr=[nrr]
+				*wait
+				h/fit [idh]([nll]:[nrr]) g l
+				mess fit [idh]
+				*wait
+				if [deb] > 0 then
+                                        mess [mm] [rms] [ledge] [uedge] [nl] [nr] [nll] [nrr] [ystep]
+			                **wait
+				endif
+
+				call [fort_dir]/fitpar.f		
+                		vec/copy par(2) coh_nois([k]) 
+
+			enddo                                 | end loop ove histograms
+	
+			if [deb] > 0 then
+				mess coh_noise: end of a batch
+ 				*wait
+			endif
+			
+			hist_file = [dir_temp]_noise/[v].wf_baseline_[file_t]_batch_[ib].hist
+			exec save_hist idh=0 hist_file=[hist_file]
+
+			do k=[idhl],[idhu]		| delete histograms
+				idh = 1000 + [k]
+				hist/delete [idh]
+			enddo
+
+		enddo                                 ! end of batch
+
+		vec/write coh_nois [dir_temp]_noise/[v].coh_noise_[file_t].dat
+
+	enddo					! end of loop over voltages
+

@@ -1,0 +1,92 @@
+ macro baselin_restor_2 dir=../exp/Ham-025U-4_Oct_19 it=24 iv=16 nev=10 fev=1 tau=8.e-5 i1=1 i2=10000 v0=0. noffs=100
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat                | temperatures recorded in this experiment
+
+t= temp([it])
+mess t= [t]
+dir_temp = [dir]/[t]               
+vec/read voltzz [dir_temp]/bias_volt.dat          | bias voltages at this temperature
+v=voltzz([iv])                                           | actual voltage
+v=$FORMAT([v],F5.2)                                     | force two digits
+
+vec/read yinc(1) [dir_temp]/[v]_yinc.dat                | scope resolution
+ystep = yinc(1)
+prec = 2*[ystep]
+mess ystep = [ystep]
+vec/cre p(3)
+
+if [noffs]>0 then
+  noff = [noffs]
+else
+  if [it]<14 then
+      noff = 30
+  elseif [it] <20 then
+      noff = 50
+      if [iv]>10 then
+          noff=80
+      endif
+  else
+      noff=100
+      if [iv]<12 then
+         noff = 80
+      endif
+  endif
+endif
+
+
+
+mess it = [it] iv = [iv] noff = [noff]
+
+
+ndim = 2*[noff] + 1
+
+vec/cre mean([ndim])
+vec/cre sig([ndim])
+vec/cre voff([ndim])
+vec/cre ix([ndim])
+vec/cre vcount([ndim])
+
+
+*                   book histograms for 'slopes' of the waveform after a correction
+*                   for different values of an offset, voff,  (Hough transform)
+
+lower = -0.01*[ystep]
+upper = -[lower]
+nbins=[ndim]
+dx = 2*[upper]/[nbins]
+vec/create cont([nbins])
+
+offset = 0.5*[noff]*[ystep]
+do j=-[noff],[noff]
+   vv = 1.0*[j] * [ystep]+[offset]    
+   ind = [j] + 1 + [noff]
+   vec/inp voff([ind]) [vv]
+enddo
+
+exec open_nt it=[it] iv=[iv]
+
+vec/del v
+vec/cre v(10000) R
+vec/del wavef
+vec/cre wavef(10000) R
+vec/cre v(10000) R
+vec/del bs
+vec/cre bs(10000) R
+
+lastev = [fev] + [nev] -1
+ 
+
+v0 = [ystep]
+ 
+lun = 45
+filnam = [dir_temp]/[v]_bas_rest.dat
+fort/file [lun] [filnam]
+mess baseline restored data [filnam]
+
+   nt/loop 30 baselin_restor_2.f([tau],[noff],[prec],[lun]) [nev] [fev]
+
+close [lun]
+
+

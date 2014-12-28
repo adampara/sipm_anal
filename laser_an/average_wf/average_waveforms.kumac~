@@ -1,0 +1,46 @@
+macro average_waveforms dir=../exp/Ham-025U-4_Oct_19   file_t=bascor_nt nscan=5000 coh=0  it1=1 it2=24
+
+*	catalog average waveforms for all data for a specified 
+*	coherent noise subtraction handling
+*       store resulting average waveforms in hist ID = 1000*[it]+iv
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+exec setup
+
+hist/del 0
+opt liny
+
+do it = [it1],[it2]
+
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+
+
+	do iv = 1, [nvolt]
+		
+		v = vxyz([iv])
+		exec scan dir=[dir] it=[it] iv=[iv] nev=1  file_t=[file_t]  nscan=[nscan] coh=[coh]
+		idh = 1000*[it] + [iv]
+		text = Average waveform, T=[t] Vbias = [v]
+		hist/copy 999 [idh] [text]
+		hist/del 999
+                
+	enddo
+
+	vector/del vxyz
+
+	file = [dir]/[t]_average_wf/average_waveforms_coh_[coh]_it_[it].hist
+	mess histograms saved to file [file]
+	exec save_hist idh=0 hist_file=[file]
+	hist/del 0
+
+enddo
+
+
+
+ 

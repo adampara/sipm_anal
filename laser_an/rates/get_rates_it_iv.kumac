@@ -1,0 +1,131 @@
+macro get_rates_it_iv dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1 deb=1
+
+
+if [deb] = 1 then
+	mess rates: dir = [dir] it=[it] iv =[iv]  
+endif
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+file_hist = [dir]/[t]_rates/[v]_rates.hist
+
+file_t = rates.hist
+exec open_nt it=[it] iv=[iv] file_t=[file_t] an_dir=rates
+
+
+*  to extract dark/post laser pulses 30 - 229 and 252 - 451 are 2 microsecond intervals
+ill = 252
+ild = 30
+len = 199
+iul = [ill] + [len]
+iud = [ild] + [len]
+
+exec vect_cre vecname=cont len=500
+
+nbin = [len] + 1
+hbin = 2.5e-10
+xup = [nbin]*5.e-10 - [hbin] 
+
+*   total number of waveforms, for each category of laser response
+
+ntot = $HINFO(300,'SUM')
+exec vect_cre vecname=mult len=10
+hist/get/cont 300 mult
+vec/inp tot(1,[iv]) [ntot]
+vec/copy mult(1:5) tot(2:6,[iv])
+*
+do ipe = -1,4
+ 
+   *  ind is for indexing vectors by number of pe's
+   ind = [ipe]+2
+   *   401 is times of all pulses, split it into dark and post-laser
+
+   idh = [ipe]*100 + 501
+
+   *   1401 will be dark
+   idhd = [it]*10000 + [ipe]*100 + 1501
+   title = pulse time, dark, [ipe] pe
+   hist/create/1d [idhd] [title] [nbin] -[hbin] [xup]
+
+   idhdq = [idhd] + 1
+   title = pulse charge, dark [ipe] pe
+   hist/create/1d [idhdq] [title] [nbin] -[hbin] [xup]
+
+   *   2401 is post-laser
+   idhl = [it]*10000+[ipe]*100 + 2501
+   title = pulse time, laser, [ipe] pe
+   hist/create/1d [idhl] [title] [nbin] -[hbin] [xup]
+
+   idhlq = [idhl] + 1
+   title = pulse charge, laser [ipe] pe
+   hist/create/1d [idhlq] [title] [nbin] -[hbin] [xup]
+
+*    idh  = time distribution of all pluses, 
+*    extract dark pulses and laser pulses into idhd and idhl
+ 
+   hist/get/cont [idh] cont
+   hist/put/cont [idhd] cont([ild]:[iud])
+   hist/put/cont [idhl] cont([ill]:[iul])
+
+*    subtract dark pulses from the 'laser'ones  into 3401
+   idhdiff = [it]*10000+[ipe]*100 + 3501
+   hist/ope/sub [idhl] [idhd] [idhdiff]
+
+
+   vec/cre par(4) R 5. -.2e10 5. -.4e9
+*   hist/fit [idhdiff](1:80) e+e ! 4 par
+*   h/pl [idhdiff](1:30)
+*   h/pl [idhdiff]
+
+   
+
+   ndark = $HINFO([idhd],'SUM')
+   nlaser = $HINFO([idhl],'SUM')
+   naft = [nlaser] - [ndark]
+        mess [idhd], [idhl]
+	mess ndark,nlaser,nafterp = [ndark],[nlaser],[naft]
+        vec/inp afterp([ind],[iv]) [naft]
+        vec/inp dark([ind],[iv]) [ndark]
+
+   *wait
+
+*     idhlf   = first pulse after laser  [1]2461, [1]2561, etc..
+
+   idhlf = [idh] + 60
+   hist/get/cont [idhlf] cont
+   idhlf = [it]*10000+[ipe]*100 + 2561
+   mess first pulse histogram number [idhlf]
+   title = first pulse after laser gate
+   hist/create/1d [idhlf] [title] [nbin] -[hbin] [xup]
+   hist/put/cont [idhlf] cont([ill]:[iul])
+
+*     idhrf   = first pulse random [1]2431, [1]2531, etc..
+
+   idhrf = [idh] + 30
+   hist/get/cont [idhrf] cont
+   idhrf = [it]*10000+[ipe]*100 + 2531
+   mess first pulse histogram number [idhrf]
+   title = first pulse random
+   hist/create/1d [idhrf] [title] [nbin] -[hbin] [xup]
+   hist/put/cont [idhrf] cont([ild]:[iud])
+   mess [ill] [iul] [idhlf] [ild] [iud]
+   *wait
+
+enddo
+
+
+*file=[dir]/[t]_breakdown/[v]_1pe.dat
+
+
+
+

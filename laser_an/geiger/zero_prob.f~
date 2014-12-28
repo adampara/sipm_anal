@@ -1,0 +1,14 @@
+      function zero_prob
+
+      vector xpos
+      vector fun
+      vector cont
+      vector par
+
+      xl = par(2)-3*par(3)
+
+      do i = 1,200
+         fun(i)=par(1)*exp(-0.5*((xpos(i)-par(2))/par(3))**2)
+      enddo
+
+      end

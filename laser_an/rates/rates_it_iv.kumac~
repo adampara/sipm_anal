@@ -1,0 +1,77 @@
+macro rates_it_iv dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1 deb=1
+
+
+if [deb] = 1 then
+	mess rates: dir = [dir] it=[it] iv =[iv]  
+endif
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+ill = 252
+ild = 30
+*     effective time bin is 10 nsec, as the hisograms were booked with 500 bins
+tdark = [ild]*10.e-9
+tlaser = [ill]*10.e-9
+
+file_t = pulses.nt
+exec open_nt it=[it] iv=[iv] file_t=[file_t] an_dir=pulses
+
+file=[dir]/[t]_breakdown/[v]_1pe.dat
+vector/read pe_value [file]
+nbin = 500
+
+do ipe = -1,4
+
+   idh = [ipe]*100 + 501
+   title = pulse time, [ipe] pe
+   hist/create/1d [idh] [title] [nbin] 0. 5.e-6
+
+   idh = [idh] + 1
+   title = pulse charge, [ipe] pe
+   hist/create/1d [idh] [title] [nbin] 0. 5.e-6
+
+
+   idhfd = [ipe]*100 + 531
+   title = first pulse time, dark, [ipe] pe
+   hist/create/1d [idhfd] [title] [nbin] 0. 5.e-6
+
+   idhfd = [idhfd] + 1
+   title = first pulse charge, dark [ipe] pe
+   hist/create/1d [idhfd] [title] [nbin] 0. 5.e-6
+
+
+   idhfl = [ipe]*100 + 561
+   title = first pulse time, laser [ipe] pe
+   hist/create/1d [idhfl] [title] [nbin] 0. 5.e-6
+
+   idhfl = [idhfl] + 1
+   title = first pulse charge, laser, [ipe] pe
+   hist/create/1d [idhfl] [title] [nbin] 0. 5.e-6
+
+
+   idhrp = [ipe]*100 + 581
+   title = distance between dark pulses [ipe] pe
+   hist/create/1d [idhrp] [title] [nbin] 0. 1.e-6
+
+
+enddo
+
+hist/create/1d 300 'laser pulse, pe' 10 -0.5 9.5
+
+nt/loop 50 rates.f(401,[tdark],[tlaser])
+
+
+if [deb]=0 then
+  file_hist = [dir]/[t]_rates/[v]_rates.hist
+  exec save_hist idh=0 hist_file=[file_hist]
+endif

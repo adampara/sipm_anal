@@ -1,0 +1,21 @@
+ mv: cannot stat `pulses_bascor_nt_-145_-60.77.nt': No such file or directory
+  At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+mv: cannot stat `pulses_sweeps_nt_-25_-69.60.nt': No such file or directory
+mv: cannot stat `pulses_sweeps_nt_5_-71.32.nt': No such file or directory
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+At line 42 of file pulses_ntuple_fin.f
+Fortran runtime error: Bad real number in item 1 of list input
+
+ 

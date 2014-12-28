@@ -1,0 +1,62 @@
+macro scan dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1 nev=1  nscan=20 coh=0 deb=1 f_dir=/det_rd_results/sipm_anal/laser_an/util file_t=bascor_nt
+
+*     scan [nscan] waveforms from a [file_t] for temperature step [it]
+*     and voltage step [iv] starting from waveform [nev]
+
+*     the average waveform is store in a histogram 999
+*     the last waveform is in the vectors x and y
+*     coh:  0 - no coherent noise subtracted
+*           1 - coherent noise subtracted
+
+if [deb] = 1 then
+	mess scan: dir = [dir] it=[it] iv = [iv]  coherent noise flag = [coh]
+endif
+
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+exec open_nt dir=[dir] it=[it] iv=[iv] file_t=[file_t]
+
+idn=30
+nbin = 10000
+
+exec vect_cre vecname=x len=[nbin]
+exec vect_cre vecname=y len=[nbin]
+exec vect_cre vecname=ave len=[nbin]
+
+*     load the function explicitely, nt/loop does not allow absolute adressing
+
+*c   get the coherent noise vector
+exec get_coh_noise ndat=[nbin] v=[v] coh=[coh] temp_dir=[dir]/[t]
+ 
+fun = [f_dir]/display.f
+call [fun]
+ffun = display
+
+title = Temp=[t] bias voltage = [v] event no [nscan]
+hist/cre/title [title]
+
+*c    histogram 999 to accumulate the summed waveform
+h/del 999
+h/cre/1d 999 waveform [nbin] 0.5 [nbin].5
+
+
+nt/loop [idn] [ffun] [nscan] [nev]
+
+*    normalize histogram to represent the average
+hist/get/cont 999 ave
+xnorm = 1/[nscan]
+vec/ope/vscale ave [xnorm] ave
+hist/put/cont 999 ave
+vec/del ave
+
+*c    plot the last waveform
+gra [nbin] x y

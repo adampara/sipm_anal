@@ -1,0 +1,35 @@
+macro plot_geiger_it  it=5  dir=../exp/Ham-025U-4_Oct_19  il=4975 iu=5025
+
+exec ../setup
+	       
+vec/read temp [dir]/temps.dat
+t=temp([it])
+ntemp=$VLEN(temp)
+
+vec/read voltz [dir]/[t]/bias_volt.dat	
+nvolt=$VLEN(voltz)
+
+exec vect_cre vecname=n_det len=[nvolt]
+exec vect_cre vecname=dn_det len=[nvolt]
+
+
+	do iv=1,[nvolt]	
+
+        v = voltz([iv])
+        v = $FORMAT([v],F5.2)
+        file=[dir]/[t]_geiger/[v]_nphot_il_[il]_iu_[iu].dat
+        vec/read pmv,pmerr [file]
+
+	vec/copy pmv n_det([iv])
+	vec/copy pmerr dn_det([iv])
+
+	vec/pri pmv
+	vec/pri pmerr
+
+	enddo
+
+	xl = voltz([nvolt])-1.
+ 	xu = voltz(1)+1
+	null [xl] [xu] 0. 2.5
+	vec/cre dv(16) R 16*0.01
+	gra/hpl/errors voltz n_det dv dn_det [nvolt]

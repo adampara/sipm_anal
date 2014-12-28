@@ -1,0 +1,4 @@
+July 4, 2014
+
+updated oeaks_it and find_peaks by adding file_t as an argument
+Run peaks_it for bascor_nt and sweeps_nt

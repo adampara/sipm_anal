@@ -1,0 +1,6 @@
+Files format: 
+1. exponential fit RC, evno i1 i2 i iv
+2. v1, exponential fit, time starting at 0, const, RC, evno i1 i2 i iv
+3. v2, exponential fit + offset, time starting at 0, const, RC, off, evno i1 i2 i iv
+4. v3, pure exponent followed by exponent+plus offset  
+     const0 RC0, const, RC, off, evno i1 i2 i iv

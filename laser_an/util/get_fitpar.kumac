@@ -1,0 +1,9 @@
+macro get_fitpar np=3
+
+*     retrieve fit parametars inti vectors p1,p2 and p3
+
+exec vect_cre vecname=par len=[np]
+
+f_dir = /det_rd_results/sipm_anal/fort_gen
+
+call [f_dir]/fitpar.f

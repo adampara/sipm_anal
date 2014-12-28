@@ -1,0 +1,22 @@
+June 18
+Create new ntuples bascor_nt using tau = 8e-5
+
+June 20 
+run average_waveforms with coh=0
+run noise_fit with coh=0
+
+June 21
+Average waveforms seem to have their baseline displaced from zero. Is it the result of the baselijne correction?
+
+Add ntuple names to the file names and run the average_waveform in parallel.
+
+In noise_fit add file_t to the baseline_mean/sigma data files.
+Add file_t argument to the get_coh_noise kumac and modify the kumac itself accordingly
+modify the file names produced by coh_noise.kumac
+
+July 18..
+
+coherent noise was all zero's and all the results were affected.. traced back 
+to the missing vector par in coh_noise.kumac (?? how did it happen??)
+
+put the array par and checked that the coherent noise is evaluated correctly..

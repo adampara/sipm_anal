@@ -1,0 +1,122 @@
+macro noise_fit  it=10  nev=5000 wfll=1 wful=10000 dir=../exp/Ham-025U-4_Oct_19 deb=0 coh=0 file_t=bascor_nt
+
+*   determine the baseline and its variance from a gaussian fit to the distribution of the values of
+*   the recorded waveforms for all data recorded at the temperature step [it]
+
+*   the range of the waveform (time bins) used in the fit may be restricted to [wfll] - [wful] 
+*   data reside in the directory [dir]
+
+*   number of waveforms used may be limited to [nev]
+*
+*   Supported file types are gates_nt and sweeps_nt
+
+*   mean baseline and its sigma values as well as the histograms are saved in subdirectory 'noise' 
+
+*   L. Munoz and A. Para   July 18, 2013
+
+*   add coherent noise subtraction option, [coh] = 0/1. Add _coh_[coh] to the file names
+*   A. Para July 20, 2013
+
+*   change the default ntuple type to bascor_nt
+*   A. Para June 20 2014
+
+*  add ntuple type to the file name
+*  A. Para June 21 2014
+
+
+
+kuip/set/filecase keep
+exec setup
+
+
+
+   mess analyze file type sweeps_nt
+   idn = 30
+   ndat = 10000
+
+if [wful] > [ndat] then
+   wful = [ndat]
+endif
+
+
+*read in temperatures and voltages  from the data file
+vec/read temp [dir]/temps.dat                |reads in temp from data file
+t= temp([it])	
+temp_dir = [dir]/[t]	   
+vec/read voltzz [temp_dir]/bias_volt.dat		  |reads in cooresponding voltage associated with specific temp
+nvolt = $VDIM(voltzz)
+
+vec/del sigma([nvolt])
+vec/del mean([nvolt])
+vec/del scope_res([nvolt])
+
+exec vect_cre sigma [nvolt]
+exec vect_cre mean [nvolt]
+exec vect_cre scope_res [nvolt]	
+	
+exec vect_cre par 3
+exec vect_cre p1 1
+exec vect_cre p2 1
+exec vect_cre p3 1
+exec vect_cre noise_t 1
+exec vect_cre mean_l 1
+exec vect_cre yinc 1
+
+
+	opt logy
+	zone 1
+
+	do i=1,[nvolt]
+
+		v=voltzz([i])
+		v=$FORMAT([v],F5.2)
+
+		exec open_nt iv=[i] it=[it] file_t=[file_t]        | open the ntuple file Ntuple
+
+		vec/read yinc(1) [temp_dir]/[v]_yinc.dat		   |reads in scope resolution from data files
+		ystep=yinc(1)
+		vec/input scope_res([i]) [ystep]  		   |Save the scope resolutions
+
+		exec get_coh_noise ndat=[ndat] v=[v] temp_dir=[temp_dir] coh=[coh] file_t=[file_t]
+
+		nbins=100
+		range=[nbins]*[ystep]
+		upper=[range]/2+0.5*[ystep]
+		lower=-[range]/2+0.5*[ystep]
+		title = Waveform values, T=[t] V=[v] 
+		hist/create/title [title]
+		hist/crea/1d 33 'baseline' [nbins] [lower] [upper]      | histogram with proper bins sizes
+
+		mess will project 
+	
+                nt/proj 33 [idn].wf([wfll]:[wful])-coh_n([wfll]:[wful]) ! [nev]		| fill the histogram	
+	
+		nc = [nbins]/2		| restrict the fit to a window +- [nfit] around zero. WARNIG: [nbins] must be an even number
+                nfit = 10
+                nl = [nc]-[nfit]
+                nr = [nc]+[nfit]               
+		h/fit 33([nl]:[nr]) g	
+		hist/pl 33
+
+		call ../../fort_gen/fitpar.f			| unload the fit results into the vector par	
+		noise_t=par(3)
+		mean1=par(2)
+		vec/copy par(2) 	mean([i])
+		vec/copy par(3) 	sigma([i])
+
+                mess noise_fit: T=[t] V=[v] baseline = [mean1] sigma = [noise_t]
+
+		hist_file = [temp_dir]_noise/[v]_noise_coh_[coh].hist
+
+		if [deb] = 0 then
+			exec save_hist idh=33 hist_file=[hist_file]
+                        hist/delete 33
+		else
+			wait
+		endif
+	enddo
+
+	if [deb] = 0 then
+		vec/write mean [temp_dir]_noise/baseline_mean_[file_t]_coh_[coh].dat
+		vec/write sigma [temp_dir]_noise/baseline_sigma_[file_t]_coh_[coh].dat
+	endif

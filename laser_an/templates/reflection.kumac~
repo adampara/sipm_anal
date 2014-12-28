@@ -1,0 +1,29 @@
+macro reflection it=24 iv=10  dir=../exp/Ham-025U-4_Oct_19 n1=205 n2=245  deb=0
+
+*     determine the distortion of the shape due to reflection
+*     from an exponential fit of [it] [iv] pulse in the range [n1] to [n2]	       
+exec ../setup
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	nvolt=$VLEN(voltz)
+
+	v = voltz([iv])
+	v = $FORMAT([v],F5.2)
+
+mess	vec/read t2 [dir]/[t]_templates/[v].template_a_to_p.dat
+	vec/read t2 [dir]/[t]_templates/[v].template_a_to_p.dat
+	h/del 445566
+	vec/draw t2 445566
+	opt logy
+	h/pl 445566
+
+
+	h/fit 445566([n1]:[n2]) e
+
+	exec get_fitpar
+	exec vect_cre vecname=reflection len=1000
+	call get_reflection.f(230,500)
+	vec/del t2
+	vec/write reflection [dir]/templates/reflection.dat

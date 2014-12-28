@@ -1,0 +1,76 @@
+macro baseline_restore dir=../exp/Ham-025U-4_Oct_19 it=24 iv=16 nev=1 fev=1 tau=1.e-4 i1=1 i2=10000 v0=0. noff=30
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat                | temperatures recorded in this experiment\
+
+t= temp([it])
+mess t= [t]
+dir_temp = [dir]/[t]               
+vec/read voltzz [dir_temp]/bias_volt.dat          | bias voltages at this temperature
+v=voltzz([iv])                                           | actual voltage
+v=$FORMAT([v],F5.2)                                     | force two digits
+
+vec/read yinc(1) [dir_temp]/[v]_yinc.dat                | scope resolution
+ystep = yinc(1)
+prec = 3*[ystep]
+mess ystep = [ystep]
+vec/cre p(3)
+
+ndim = 2*[noff] + 1
+
+vec/cre mean([ndim])
+vec/cre sig([ndim])
+vec/cre voff([ndim])
+vec/cre ix([ndim])
+vec/cre vcount([ndim])
+
+
+*                   book histograms for 'slopes' of the waveform after a correction
+*                   for different values of an offset, voff,  (Hough transform)
+
+lower = -0.01*[ystep]
+upper = -[lower]
+nbins=[ndim]
+dx = 2*[upper]/[nbins]
+vec/create cont([nbins])
+vec/create vcount([nbins],[nbins])
+
+offset = [noff]*[ystep]*0.5
+offset = 0.
+do j=-[noff],[noff]
+   vv = 1.0*[j] * [ystep]-[offset]    
+   ind = [j] + 1 + [noff]
+   vec/inp voff([ind]) [vv]
+enddo
+
+mess histogram limits [lower] [upper]
+*wait
+
+exec open_nt it=[it] iv=[iv]
+
+vec/del v
+vec/cre v(10000) R
+vec/del wavef
+vec/cre wavef(10000) R
+vec/cre v(10000) R
+vec/del bs
+vec/cre bs(10000) R
+
+lastev = [fev] + [nev] -1
+ 
+
+v0 = [ystep]
+ 
+do  iev = [fev],[lastev]
+
+   title = waveform number [iev]
+   hist/create/tit [title] 
+
+   nt/loop 30 baseline_restore.f([tau],[noff],[prec]) 1 [iev]
+   zone 1 3
+   vec/draw wavef([i1]:[i2])
+   vec/draw v([i1]:[i2])
+   vec/draw bs([i1]:[i2])
+   wait
+enddo

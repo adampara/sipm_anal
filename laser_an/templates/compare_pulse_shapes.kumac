@@ -1,0 +1,79 @@
+macro compare_pulse_shapes dir=../exp/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=16 n1=2 n2=4 wl=1 wu=400 itstep=1
+
+* 	compare pulse shapes at a given temperature and voltage ranges
+*       temperatures can be stepped with a step [itstep]
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+hist/del 0
+opt liny
+zone 1 1
+
+vector/read reflection [dir]/templates/reflection.dat
+
+	text = Pulse shapes
+	hist/create/title [text] 
+	set hcol 1
+	text = waveform
+	hist/cre/1d 999 [text] 1000 0.5 1000.5
+	h/pl 999([wl]:[wu])
+
+iplot = 0
+
+it = [it1]-[itstep]
+
+xp = 50
+yp = 0
+dy = 0.1
+
+
+
+do ii = [it1],[it2]
+	it = [it] + [itstep]
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+	
+
+
+	do iv = [iv1],[iv2]
+		
+		v = vxyz([iv])
+		v=$FORMAT([v],F5.2)                   			| force two digits
+
+		vec/del t2
+		vec/read t2 [dir]/[t]_templates/[v].template_a_to_p.dat
+		*  corrected for electronics reflections
+
+		vec/ope/vsub t2 reflection t2
+		set hcol 2
+		hist/put/cont 999 t2(1:1000)
+		*hist/pl 999([wl]:[wu])
+		iplot = [iplot] + 1
+		if [iplot]=9 then
+			xp = 250.
+                        yp = 0
+                endif
+                ipl = $SIGMA(mod([iplot],5))+1
+		if [ipl]=5 then
+			col = 6
+		else
+			col = [ipl]
+                endif
+		set hcol [col]
+		igset pmci [col]
+		yp = [yp]-[dy]
+                text = T=[t], Vbias = [v]V
+		key  [xp] [yp] 20 [text] 0.3
+		hist/put/cont 999 t2
+		hist/pl 999([wl]:[wu]) s
+		*wait
+	enddo
+
+	vector/del vxyz
+	wait
+enddo
+
+vector/del txyz

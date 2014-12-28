@@ -1,0 +1,81 @@
+macro examine_templates dir=../exp/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=8 n1=2 n2=4 wl=100 wu=500
+
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+hist/del 0
+opt liny
+zone [n1] [n2]
+
+do it = [it1],[it2]
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+	
+	text = Pulse shapes, T = [t]
+	hist/create/title [text] 
+
+	do iv = [iv1],[iv2]
+		
+		v = vxyz([iv])
+		v=$FORMAT([v],F5.2)                   			| force two digits
+		vec/del tlall
+		vec/del tl1pe
+		vec/del tl2pe
+		vec/del tl3pe
+		vec/del tdall
+		vec/del td1pe
+		vec/del td2pe
+		vec/del td3pe
+
+		vec/read tlall [dir]/[t]_templates/[v].template_laser_all.dat
+		vec/read tl1pe [dir]/[t]_templates/[v].template_laser_1pe.dat
+		vec/read tl2pe [dir]/[t]_templates/[v].template_laser_2pe.dat
+		vec/read tl3pe [dir]/[t]_templates/[v].template_laser_3pe.dat
+		vec/read tdall [dir]/[t]_templates/[v].template_dark_all.dat
+		vec/read td1pe [dir]/[t]_templates/[v].template_dark_1pe.dat
+		vec/read td2pe [dir]/[t]_templates/[v].template_dark_2pe.dat
+		vec/read td3pe [dir]/[t]_templates/[v].template_dark_3pe.dat
+
+
+		text = T= [t] Bias V = [v]
+		hist/cre/tit [text]
+
+		hist/cre/1d 999 [text] 1000 0.5 1000.5
+		set hcol 2
+		*hist/put/cont 999 t1(1:1000)
+ 		zone 1 4
+		set hcol 2
+		vec/draw tlall([wl]:[wu])
+                set hcol 4
+		vec/draw tdall([wl]:[wu]) ! s
+		set hcol 2
+		vec/draw tlall([wl]:[wu])
+		set hcol 4
+		vec/draw tl1pe([wl]:[wu]) ! s
+		set hcol 2
+		vec/draw tlall([wl]:[wu])
+                set hcol 4
+		vec/draw tl2pe([wl]:[wu]) ! s
+		set hcol 2
+		vec/draw tlall([wl]:[wu])
+		set hcol 4
+		vec/draw tl3pe([wl]:[wu]) ! s
+		wait
+		vec/draw tdall([wl]:[wu])
+		vec/draw td1pe([wl]:[wu])
+		vec/draw td2pe([wl]:[wu])
+		vec/draw td3pe([wl]:[wu])
+		wait
+		*hist/pl 999([wl]:[wu])
+		*wait
+	enddo
+
+	vector/del vxyz
+	wait
+enddo
+
+vector/del txyz

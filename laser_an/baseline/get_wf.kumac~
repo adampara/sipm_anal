@@ -1,0 +1,21 @@
+macro get_wf nev=1 iv=16  it=24 log=0 i1=1 i2=10000
+vec/del x
+vec/del y
+vec/del z
+
+exec open_nt it=[it] iv=[iv]
+exec scan it=[it] iv=[iv] nev=[nev] nscan=1
+vec/ope/vsca y -1. z   
+vec/cre par(2)
+bias = -[i1]
+vec/ope/vbias x [bias] x
+vec/fit x([i1]:[i2]) z([i1]:[i2]) ! e ! 2 par
+ww = par(1)
+vv=par(2)
+text = [ww] [vv] [nev] [i1] [i2] [it] [iv]
+
+mess [text]
+if [log]>0 then
+   file = RC_const_it_[it]_iv_[iv].dat_v1
+   fmess [text] [file]
+endif

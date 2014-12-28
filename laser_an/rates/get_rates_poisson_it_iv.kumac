@@ -1,0 +1,58 @@
+macro get_rates_poisson_it_iv dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1 deb=1 file_t=pulses_bascor_nt.nt cat=0
+
+*   get time distributions fo pulses and calulate rates of different categories of pulses
+*   cat = :   0 all pulses, 1 regular pulses only , 2 non-quenched oulses only
+
+ngates = 7
+
+*    length of the gates
+
+vec/cre lgate([ngates]) R 2.e-8 1.e-7 2.e-7 1.e-6 2.e-6 1. 1.
+
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+file = rates_fin_[file_t].hist
+
+exec open_nt it=[it] iv=[iv] file_t=[file] an_dir=rates
+
+vec/cre cont(100)
+
+vec/cre nzero([ngates])
+vec/cre prob([ngates])
+
+hist/copy 300 496
+hist/copy 300 497
+
+do ig = 1,[ngates]
+	hist/get/cont 49[ig] cont
+	nall = $HINFO(49[ig],'ENTRIES')
+        *mess  Nall = [nall]
+	pr = cont(1)/[nall]
+        *mess pr = [pr]
+        vec/inp prob([ig]) [pr]
+enddo	
+
+sigma mean = -log(prob)
+
+vec/ope/vdiv mean lgate rate
+
+vec/prin rate
+
+ave = $HINFO(496,'MEAN')
+hist/pl 496
+mess average ave [ave]
+vec/print prob(6)
+
+*     rate(7) is a mean of the observed number of pulses
+ vec/inp rate(7) [ave]

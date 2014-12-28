@@ -1,0 +1,11 @@
+macro resp_time
+
+*   analyze late/delayed pulses
+
+hist/create/1d 101 'resp time, laser' 1000 0. 1,e-6
+hist/create/1d 102 'resp time, rand' 1000 0. 1,e-6
+
+hist/create/1d 103 'resp ampl, laser' 100 0. 0.1
+hist/create/1d 104 'resp ampl, rand' 100 0. 0.1
+
+nt/loop 50 resp_time.f

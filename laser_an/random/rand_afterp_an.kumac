@@ -1,0 +1,41 @@
+macro rand_afterp_an ntry=100000 nbin=100 xup=2.e-6 fr1=0.5 fr2=1.0 amu=2.
+
+exec ../setup
+
+hist/del 0
+close 21
+hist/file 21 afterpulse_amu_[amu]_fr1_[fr1].his
+cd //lun21
+opt stat
+zone 1 2
+
+vec/cre par(2)
+
+h/fit 99(51:500) e 
+exec get_fitpar np=2
+vec/cop par par1
+
+
+
+h/fit 102(51:500) e 
+exec get_fitpar np=2
+vec/cop par par2
+
+ zone 1 2
+
+opt liny
+h/pl 100(1:100)
+opt fit
+opt logy
+h/pl 99(40:500)
+
+*wait
+h/pl 96
+
+rms = $HINFO(96,'RMS')
+mean = $HINFO(96,'MEAN')
+
+enf = 1. + [rms]*[rms]/([mean]*[mean])
+
+mess  excess noise factor = [enf]
+vec/input en(1) [enf]

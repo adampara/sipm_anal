@@ -1,0 +1,54 @@
+macro find_peaks dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1  coh=0 deb=0 f_dir=/det_rd_results/sipm_anal/laser_an/f_util il=4975 iu=5025 file_t=bascor_nt
+
+
+if [deb] = 1 then
+	mess find_peaks: dir = [dir] it=[it] iv = [iv]  coherent noise flag = [coh]
+endif
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+vec/read yyinc [dir]/[t]/[v]_yinc.dat
+ystep = yyinc(1)
+mess ysetp = [ystep]
+
+vec/read sig_noise [dir]/[t]_noise/baseline_sigma_[file_t]_coh_1.dat
+cut_noise = 3.*sig_noise([iv])
+
+
+exec open_nt dir=[dir] it=[it] iv=[iv] file_t=[file_t]
+
+*     load the function explicitely, nt/loop does not allow absolute adressing
+
+*c   get the coherent noise vector
+exec get_coh_noise ndat=[nbin] v=[v] coh=[coh] temp_dir=[dir]/[t]
+ 
+funp = [f_dir]/peak_pos.f
+call [funp](1,100)
+
+funv = [f_dir]/peak_val.f
+call [funv](1,100)
+
+nbin=200
+
+xup = [nbin]*[ystep]
+nb = [iu] - [il]
+title = time vs peak, T=[t], V=[v]
+hist/cre/2d 100  [title] [nbin] 0. [xup] [nb] [il] [iu]
+nt/proj 100 30.peak_pos([il],[iu])%peak_val([il],[iu]) 
+
+title = peaks T=[t], V=[v]
+hist/cre/1d 101 [title] [nbin] 0. [xup] 
+nt/proj 101 30.peak_val([il],[iu]) peak_val([il],[iu])>[cut_noise]
+
+file=[dir]/[t]_breakdown/[v]_peaks_[file_t].hist
+exec save_hist idh=0 hist_file=[file]

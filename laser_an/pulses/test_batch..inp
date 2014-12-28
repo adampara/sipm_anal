@@ -1,0 +1,3 @@
+0
+exec  pulses_batch it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=100
+exit

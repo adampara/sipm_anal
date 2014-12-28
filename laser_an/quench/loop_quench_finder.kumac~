@@ -1,0 +1,10 @@
+macro loop_quench_finder it=1 iv=1 fev=1 numev=1 il=1 iu=10000
+
+do iev = 1,[numev]
+
+   ev = [fev] -1 + [iev]
+   mess event [ev]
+   exec find_quench iv=[it] it=[iv] nev=1 fev=[ev] il=[il] iu=[iu]
+   wait
+
+enddo

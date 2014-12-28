@@ -1,0 +1,17 @@
+macro plot_rates_temp case=1 iv=10 it1=20 it2=24 vect=dark
+
+xl = temp([it1])-5.
+xu = temp([it2])+5.
+
+ym = 5*[vect][case]([iv],[it2])
+
+opt logy
+null [xl] [xu] 0.01 [ym]
+
+np = [it2] - [it1] + 1
+
+isymb=20
+do it = [it1],[it2]
+   isymb = [isymb] + 1
+   gra/hplot/errors temp([it1]:[it2]) [vect][case]([iv],[it1]:[it2]) [vect]e[case]([iv],[it1]:[it2]) [vect]e[case]([iv],[it1]:[it2]) [np] [isymb] 0.3
+enddo

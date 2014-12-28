@@ -1,0 +1,41 @@
+macro examine_coh_noise dir=data/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=8 n1=2 n2=4 coh=0
+
+
+vector/read txyz [dir]/char/temps.dat
+ntemp = $VDIM(txyz)
+
+hist/del 0
+close 21
+h/file 21  [dir]/noise/average_waveforms_coh_[coh].hist
+
+opt liny
+zone [n1] [n2]
+
+do it = [it1],[it2]
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+	
+	text = Coherent baseline, T = [t]
+	hist/create/title [text] 
+
+	do iv = [iv1],[iv2]
+		
+		v = vxyz([iv])
+		v=$FORMAT([v],F5.2)                   			| force two digits
+
+		idh = 1000*[it]+[iv]
+		hist/pl [idh]
+		*wait
+	enddo
+
+	vector/del vxyz
+	wait
+enddo
+
+vector/del txyz
+
+*file = [dir]/noise/average_waveforms_coh_0.hist
+*exec save_hist idh=0 file=[file]

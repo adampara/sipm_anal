@@ -1,0 +1,41 @@
+macro examine_average_waveforms dir=../exp/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=8 n1=2 n2=4 coh=0 il=1 iu=10000
+
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+
+opt liny
+zone [n1] [n2]
+
+do it = [it1],[it2]
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+	hist/del 0
+	close 21
+	h/file 21  [dir]/[t]_average_wf/average_waveforms_coh_[coh]_it_[it].hist
+	
+	text = Average waveforms, T = [t]
+	hist/create/title [text] 
+
+	do iv = [iv1],[iv2]
+		
+		v = vxyz([iv])
+		v=$FORMAT([v],F5.2)                   			| force two digits
+
+		idh = 1000*[it]+[iv]
+		hist/pl [idh]([il]:[iu])
+		*wait
+	enddo
+
+	vector/del vxyz
+	wait
+enddo
+
+vector/del txyz
+
+*file = [dir]/noise/average_waveforms_coh_0.hist
+*exec save_hist idh=0 file=[file]

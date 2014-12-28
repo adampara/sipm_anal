@@ -1,0 +1,12 @@
+macro scan_range it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=1 il=1 iu=10000
+
+do iev = 1,[nev]
+
+   nev = [fev] - 1 + [iev]
+
+   exec scan_wave it=[it] iv=[iv] dir=[dir]  fev=[nev] nev=1 il=[il] iu=[iu]
+   mess scan event [nev] it=[it] iv=[iv]
+
+   wait
+
+enddo

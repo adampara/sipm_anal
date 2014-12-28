@@ -1,0 +1,112 @@
+macro geiger_prob dir=../exp/Ham-025U-4_Oct_19 it=1 iv=1  coh=1 deb=0 f_dir=/det_rd_results/sipm_anal/laser_an/f_util il=4975 iu=5025
+
+
+if [deb] = 1 then
+	mess geiger_prob: dir = [dir] it=[it] iv =[iv]  coherent noise flag = [coh]
+endif
+
+exec ../setup
+kuip/set/filecase keep
+
+vector/read t123 [dir]/temps.dat
+t = t123([it])
+vector/del t123
+
+vec/read v123 [dir]/[t]/bias_volt.dat
+v = v123([iv])
+v = $FORMAT([v],F5.2)
+vector/del v123
+
+vec/read yyinc [dir]/[t]/[v]_yinc.dat
+ystep = yyinc(1)
+mess ysetp = [ystep]
+
+vec/read sig_noise [dir]/[t]_noise/baseline_sigma_coh_1.dat
+cut_noise = 3.*sig_noise([iv])
+
+vec/read one_pe [dir]/[t]_breakdown/[v]_1pe.dat
+
+file_t = sweeps_nt
+exec open_nt dir=[dir] it=[it] iv=[iv] file_t=[file_t]
+
+*c   get the coherent noise vector
+exec get_coh_noise v=[v] coh=[coh] temp_dir=[dir]/[t]
+
+*     load the function explicitely, nt/loop does not allow absolute adressing
+ funp = [f_dir]/peak_pos.f
+call [funp](1,100)
+
+funv = [f_dir]/peak_val.f
+call [funv](1,100)
+
+nbin=200
+
+xup = ([nbin]-0.5)*[ystep]
+xl = -0.5*[ystep]
+title = peaks T=[t], V=[v]
+hist/cre/1d 101 [title] [nbin] 0. [xup] 
+nt/proj 101 30.peak_val([il],[iu])
+
+peak = one_pe(1)/[ystep]
+
+npeak = $SIGMA(int([peak]+0.5))
+wpeak = $SIGMA(int([npeak]*0.2+0.5))
+nnoise = $SIGMA(int([cut_noise]/[ystep]+0.5))
+
+
+mess one pe peak us at bin [npeak], width = [wpeak] , 3sigma noise = [nnoise]
+
+i1 = [npeak] - [wpeak]+1
+i2 = [npeak] + [wpeak]+1
+
+h/fit 101([i1]:[i2]) g
+h/plot 101(1:30)
+
+f_gen = /det_rd_results/sipm_anal/fort_gen
+exec vect_cre vecname=par len=3
+call [f_gen]/fitpar.f
+
+exec vect_cre vecname=cont len=[nbin]
+exec vect_cre vecname=xpos len=[nbin]
+exec vect_cre vecname=fun len=[nbin]
+
+hist/get/cont 101 cont
+hist/get/abscissa 101 xpos
+
+call zero_prob.f
+vec/copy fun fun_peak
+hist/pl 101(1:60)
+*wait
+
+h/fit 101(1:[nnoise]) g
+h/plot 101(1:30)
+call [f_gen]/fitpar.f
+call zero_prob.f
+
+vec/copy cont(1:[i1]) nz_cand
+vec/copy fun_peak(1:[i1]) npeak
+i11 = [i1] + 1
+vec/copy fun([i11]:200) funm
+
+appl sigma
+   nzc=VSUM(nz_cand)
+   nps=VSUM(npeak)
+   nmis=VSUM(funm)
+exit
+
+nzero = nzc(1) + nmis(1) - nps(1)
+mess [nzero] 
+
+tot = $HINFO(101,'ENTRIES')
+
+pzero = [nzero]/[tot]
+
+sigma pmv = -LOG([pzero])
+
+sigma pmerr = 1./SQRT([nzero])
+
+
+file=[dir]/[t]_geiger/[v]_nphot_il_[il]_iu_[iu].dat
+vec/write pmv,pmerr [file]
+file_hist = [dir]/[t]_geiger/[v]_nphot_il_[il]_iu_[iu].hist
+exec save_hist idh=101 hist_file=[file_hist]

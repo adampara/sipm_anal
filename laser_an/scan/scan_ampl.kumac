@@ -1,0 +1,18 @@
+macro scan_ampl a1=0. a2=1. idh=100 nsc=100
+
+do n = 0, [nsc]
+   id = [idh] + [n]
+   hist/cre/1d [id] 'pulse' 100 0.5 100.5
+enddo
+
+fun = scan_ampl([idh],[a1],[a2])
+call ../scan/scan_ampl.f([idh],[a1],[a2])
+nt/loop 50 [fun]
+
+do n = 0, [nsc]
+   id = [idh] + [n]
+   h/pl [id]
+   wait
+enddo
+
+

@@ -1,0 +1,14 @@
+macro baseline_it  it=5  dir=../exp/Ham-025U-4_Oct_19 tau=8.e-5
+
+*    restore baseline for all data files taken at temperature [it]
+
+	       
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	nvolt=$VLEN(voltz)
+
+	do iv=1,[nvolt]	
+		exec baselin_restor_2 dir=[dir] iv=[iv] it=[it] tau=[tau] nev=5000
+	enddo

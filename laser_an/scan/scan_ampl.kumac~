@@ -1,0 +1,10 @@
+macro scan_ampl a1=0. a2=1. idh=100 nsc=100
+
+do n = 1, [nsc]
+   id = [idh] + [n]
+   hist/cre/1d [id] 'pulse' 100 0.5 100.5
+enddo
+
+nt/loop 50 /det_rd_results/sipm_anal/laser_an/scan/scan_ampl.f([idh],[a1].[a2])
+
+hist/pl [idh]

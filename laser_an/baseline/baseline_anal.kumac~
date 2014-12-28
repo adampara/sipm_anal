@@ -1,0 +1,7 @@
+macro baseline_anal it=24 iv=16
+
+*   analyze baseline decay times
+
+nt/create 20 RC 10 ! ! c0 tau0 c1 tau1 off nev le ue it iv
+
+nt/read 20   RC_const_it_[it]_iv_[iv].dat_v3

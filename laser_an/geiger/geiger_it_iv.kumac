@@ -1,0 +1,166 @@
+macro pulses_it_iv it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  fev=1 nev=1 itempl=7 cut=3 chicut=10.
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+ 
+	vt=voltz([itempl])
+ 	vt = $FORMAT([vt],f5.2)
+
+vec/read templ [dir]/[t]_templates/[vt].template_laser_all.dat 
+vec/read coh_noi [dir]/[t]_noise/[v].coh_noise.dat
+
+
+exec vect_cre vecname=cut_noise len=1
+vec/input cut_noise(1) 0.
+
+vec/read noise_sigma [dir]/[t]_noise/baseline_sigma_coh_1.dat
+sig_noi = [cut]*noise_sigma([iv])
+
+
+
+
+do i = 0,20
+	idh = 100 + [i]
+        if $HEXIST([idh]) = 1 then
+            hist/del [idh]
+        endif
+        *hist/cre/1d [idh] waveform[i] 10000 0.5 10000.5
+	idh = 200 + [i]
+        if $HEXIST([idh]) = 1 then
+            hist/del [idh]
+        endif
+        *hist/cre/1d [idh] template[i] 10000 0.5 10000.5
+enddo
+h/pl 101
+ hist/cre/2d 999 chisquared 100 0. 100. 50 -0.005 0.015
+
+vec/cre sampl(1) R 5.e-10
+vec/cre tau(1) R 5.e-9
+
+close 55
+h/file 55 test.nt ! N
+call create_nt.f
+
+units
+nt/list
+wait
+exec open_nt it=[it] iv=[iv] dir=[dir]
+
+nt/loop 30 pulse_an.f([sig_noi],[chicut]) [nev]  [fev]
+cd //lun55
+hrout 50
+mess done
+wait
+do i = 0,20
+ 	idh = 100 + [i]
+	set hcol 2
+        hist/pl [idh]
+	set hcol 4
+	idh = 200 + [i]
+	hist/pl [idh] s
+	wait
+enddo
+
+wait
+
+
+file=[dir]/[t]_breakdown/[v]_1pe.dat
+vector/read pe_value [file]
+
+*wait
+*    produce a histogram (id=334) of a area-to-peak ratios to allow the automatic cut definition
+exec make_template it=[it] iv=[iv] dir=[dir] i_upper_edge=[upp_edge] lgl=[lgl] lgu=[lgu] i_lower_edge=[low_edge] deb=0	nev=[nev]
+h/pl 334 
+
+*  
+*   analyze area/peak histogram to define the final cuts
+
+exec vect_cre vecname=dif_sum len=1000
+hist/get_vect/cont 334 dif_sum
+
+maxp = $SIGMA(LVMAX(dif_sum))
+win=18
+llim= [maxp] - [win]
+ulim= [maxp] + [win]
+
+if [deb]>0 then
+	mess pulse def :  max=[maxp] llim:[llim] ulim:[ulim]
+	mess pulse def :  llim=[llim] ulim=[ulim]
+	*wait
+endif
+
+h/fit 334([llim]:[ulim]) g	|fit histogram 
+
+exec get_fitpar
+mean = par(2)
+sigma = par(3)
+ 
+cutu = [mean]+[sigma]		|  upper cut on area-to-peak
+cutl = [mean]-[sigma]		|  lower cut on area-to-peak
+
+if [deb]>0 then
+	mess pulse def: cutu= [cutu] cutl = [cutl]
+endif
+
+*   ----------------------------------------------------------
+
+
+exec make_template it=[it] iv=[iv] cutl=[cutl] cutu=[cutu] dir=[dir]  i_upper_edge=[upp_edge] nev=[nev] lgl=[lgl] lgu=[lgu] i_lower_edge=[low_edge] deb=0
+
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+
+exec  hist_to_template idh=220
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_all.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=221
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_1pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=222
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_2pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=223
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_3pe.dat 
+vec/draw newtempl
+*wait
+
+*  -----------------------------------------------------------
+
+*     get a template from dark pulses before the laser signal
+
+vec/read noise_sigma [dir]/[t]_noise/baseline_sigma_coh_1.dat
+sig_noi = 5*noise_sigma([iv])
+vec/input cut_noise [sig_noi]
+exec make_template it=[it] iv=[iv] cutl=[cutl] cutu=[cutu] dir=[dir]  i_upper_edge=[upp_edge] nev=[nev] lgl=500 lgu=3500 i_lower_edge=[low_edge] deb=0
+
+
+exec  hist_to_template idh=220
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_all.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=221
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_1pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=222
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_2pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=223
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_3pe.dat 
+vec/draw newtempl
+*wait

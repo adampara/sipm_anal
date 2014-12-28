@@ -1,0 +1,13 @@
+macro scan_pulses_fin it=1 iv=5 file_t=pulses.nt nev=5000
+
+*   analyze late/delayed pulses
+exec ../setup
+
+
+*exec open_nt it=[it] iv=[iv] file_t=[file_t] an_dir=pulses
+
+do ih = 101,200
+    hist/create/1d [ih] 'pulse' 200 0. 200.
+enddo
+
+nt/loop 60 scan_pulse_fin.f [nev]

@@ -1,0 +1,114 @@
+macro template_it_iv it=5 iv=1 dir=../exp/Ham-025U-4_Oct_19  upp_edge=400 nev=500 lgl=4980 lgu=5040 low_edge=180 deb=0 file_t=bascor_nt
+*  construct a template for a given it/iv using the area/peak 
+*  as a discriminant and store it
+*  template is normalized to zero for bins 500-1000
+*
+*   June 22, 2014
+*   add file_t argument
+
+exec ../setup
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+ 
+exec vect_cre vecname=cut_noise len=1
+vec/input cut_noise(1) 0.
+
+file=[dir]/[t]_breakdown/[v]_1pe.dat
+vector/read pe_value [file]
+
+*wait
+*    produce a histogram (id=334) of a area-to-peak ratios to allow the automatic cut definition
+exec make_template it=[it] iv=[iv] dir=[dir] i_upper_edge=[upp_edge] lgl=[lgl] lgu=[lgu] i_lower_edge=[low_edge] deb=0	nev=[nev] file_t=[file_t]
+h/pl 334 
+
+*  
+*   analyze area/peak histogram to define the final cuts
+
+exec vect_cre vecname=dif_sum len=1000
+hist/get_vect/cont 334 dif_sum
+
+maxp = $SIGMA(LVMAX(dif_sum))
+win=18
+llim= [maxp] - [win]
+ulim= [maxp] + [win]
+
+if [deb]>0 then
+	mess pulse def :  max=[maxp] llim:[llim] ulim:[ulim]
+	mess pulse def :  llim=[llim] ulim=[ulim]
+	*wait
+endif
+
+h/fit 334([llim]:[ulim]) g	|fit histogram 
+
+exec get_fitpar
+mean = par(2)
+sigma = par(3)
+ 
+cutu = [mean]+[sigma]		|  upper cut on area-to-peak
+cutl = [mean]-[sigma]		|  lower cut on area-to-peak
+
+if [deb]>0 then
+	mess pulse def: cutu= [cutu] cutl = [cutl]
+endif
+
+*   ----------------------------------------------------------
+
+
+exec make_template it=[it] iv=[iv] cutl=[cutl] cutu=[cutu] dir=[dir]  i_upper_edge=[upp_edge] nev=[nev] lgl=[lgl] lgu=[lgu] i_lower_edge=[low_edge] deb=0 file_t=[file_t]
+
+
+vec/read temp [dir]/temps.dat
+	t=temp([it])
+	ntemp=$VLEN(temp)
+vec/read voltz [dir]/[t]/bias_volt.dat	
+	v=voltz([iv])
+ 	v = $FORMAT([v],f5.2)
+
+exec  hist_to_template idh=220
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_[file_t]_all.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=221
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_[file_t]_1pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=222
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_[file_t]_2pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=223
+vec/write newtempl [dir]/[t]_templates/[v].template_laser_[file_t]_3pe.dat 
+vec/draw newtempl
+*wait
+
+*  -----------------------------------------------------------
+
+*     get a template from dark pulses before the laser signal
+
+vec/read noise_sigma [dir]/[t]_noise/baseline_sigma_[file_t]_coh_1.dat
+sig_noi = 5*noise_sigma([iv])
+vec/input cut_noise [sig_noi]
+exec make_template it=[it] iv=[iv] cutl=[cutl] cutu=[cutu] dir=[dir]  i_upper_edge=[upp_edge] nev=[nev] lgl=500 lgu=3500 i_lower_edge=[low_edge] deb=0 file_t=[file_t]
+
+
+exec  hist_to_template idh=220
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_[file_t]_all.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=221
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_[file_t]_1pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=222
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_[file_t]_2pe.dat 
+vec/draw newtempl
+*wait
+exec  hist_to_template idh=223
+vec/write newtempl [dir]/[t]_templates/[v].template_dark_[file_t]_3pe.dat 
+vec/draw newtempl
+*wait

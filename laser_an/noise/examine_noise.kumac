@@ -1,0 +1,46 @@
+macro examine_noise   dir=../exp/Ham-025U-4_Oct_19 coh=1 
+
+
+exec ../setup
+
+	       
+vec/read temp [dir]/temps.dat
+
+ntemp=$VLEN(temp)
+
+exec vect_cre vecname=cont len=200
+
+do it = 1,[ntemp]
+    t=temp([it])
+    temp_dir = [dir]/[t]
+    vec/del voltz
+    vec/read voltz [temp_dir]/bias_volt.dat	
+    nvolt=$VLEN(voltz)
+
+    vec/read mean_noise [temp_dir]_noise/baseline_mean_coh_[coh].dat
+    vec/read sigma_noise [temp_dir]_noise/baseline_sigma_coh_[coh].dat
+
+
+	mess temperature = [t]
+	
+	igset mtype 20
+	zone 1 2
+	graph [nvolt] voltz mean_noise '*ALW'
+	graph [nvolt] voltz sigma_noise '*ALW'
+
+	exec vect_cre vecname=vbias_good len=[nvolt]
+	ig = 0
+	thresh = 0.003
+
+	do iv = 1,[nvolt]
+          if sigma_noise([iv])<[thresh] then
+	     ig = [ig] + 1
+             vect/copy voltz([iv]) vbias_good([ig])
+          endif
+	enddo
+
+	vect/print vbias_good(1:[ig])
+        file = [temp_dir]_noise/vbias_good.dat
+        vec/write vbias_good(1:[ig]) [temp_dir]_noise/vbias_good.dat
+	wait
+enddo

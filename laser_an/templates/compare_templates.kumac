@@ -1,0 +1,48 @@
+macro compare_templates dir=../exp/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=16 n1=2 n2=4 wl=100 wu=500
+
+*   compare templates derived from the dark and laser pulses
+
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+hist/del 0
+opt liny
+zone [n1] [n2]
+
+do it = [it1],[it2]
+
+	t = txyz([it])
+        mess it = [it] T = [t]
+	vec/read vxyz [dir]/[t]/bias_volt.dat
+	nvolt = $VDIM(vxyz)
+	
+	text = Pulse shapes, T = [t]
+	hist/create/title [text] 
+
+	do iv = [iv1],[iv2]
+
+		zone 1 1		
+		v = vxyz([iv])
+		v=$FORMAT([v],F5.2)                   			| force two digits
+		vec/del t1
+		vec/del t2
+		vec/read t1 [dir]/[t]_templates/[v].template_a_to_p.dat
+		vec/read t2 [dir]/[t]_templates/[v].template_dark.dat
+
+		text = Bias V = [v]
+		hist/cre/1d 999 [text] 1000 0.5 1000.5
+		set hcol 2
+		hist/put/cont 999 t1(1:1000)
+		hist/pl 999([wl]:[wu])
+		hist/cre/1d 998 [text] 1000 0.5 1000.5
+		set hcol 4
+		hist/put/cont 998 t2(1:1000)
+		hist/pl 998([wl]:[wu]) s
+		wait
+	enddo
+
+	vector/del vxyz
+	wait
+enddo
+
+vector/del txyz

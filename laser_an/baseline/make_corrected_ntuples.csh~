@@ -1,0 +1,32 @@
+#! /bin/tcsh -f
+
+#!  example : 
+#!  add_temp_dir.csh /det_rd_results/sipm_anal/laser_an/exp/Ham-025U-4 average_wf
+
+echo add directory $2 to all temperatures in  a directory $1
+
+set top_dir = $1
+set add_dir = $2
+
+cd $top_dir
+   
+touch file.dir
+echo ${add_dir} >> file.dir
+
+set temps = `ls -F | egrep '^-?[[:digit:]]+/$' | tr / " "  `
+
+foreach temp (${temps})
+ 
+    echo ${temp}
+    echo ./${temp}_${add_dir} 
+    set new_dir =  ./${temp}_${add_dir} 
+    echo ${new_dir}
+
+    if -e ${new_dir} then
+	echo ${new_dir} already exists
+    else
+	mkdir ${new_dir}
+    endif
+
+end
+

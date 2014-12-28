@@ -1,0 +1,87 @@
+macro pulse_shape_anal dir=../exp/Ham-025U-4_Oct_19  it1=1 it2=24 iv1=1 iv2=16 n1=2 n2=4 wl=1 wu=400 itstep=1
+
+* 	compare pulse shapes at a given temperature and voltage ranges
+*       temperatures can be stepped with a step [itstep]
+
+
+exec ../setup
+f_dir = /det_rd_results/sipm_anal/fort_gen
+vector/read txyz [dir]/temps.dat
+ntemp = $VDIM(txyz)
+
+hist/del 0
+opt liny
+zone 1 1
+
+vector/read reflection [dir]/templates/reflection.dat
+
+text = Pulse shapes
+hist/create/title [text] 
+set hcol 1
+text = waveform
+
+
+iplot = 0
+
+it = [it1]-[itstep]
+
+xp = 50
+yp = 0
+dy = 0.1
+
+
+
+do ii = [it1],[it2]
+	
+   it = [it] + [itstep]
+   t = txyz([it])
+   mess it = [it] T = [t]
+   vec/read vxyz [dir]/[t]/bias_volt.dat
+   nvolt = $VDIM(vxyz)
+	
+   do iv = [iv1],[iv2]
+		
+	v = vxyz([iv])
+	v=$FORMAT([v],F5.2)                   			| force two digits
+
+	vec/del t2
+	vec/read t2 [dir]/[t]_templates/[v].template_a_to_p.dat
+	*  corrected for electronics reflections
+	vec/ope/vsub t2 reflection t2
+
+	vec/read xinc [dir]/[t]/[v]_xinc.dat
+
+	xup = 1000*xinc(1)
+	hist/cre/1d 999 [text] 1000 0. [xup]
+
+	set hcol 2
+	hist/put/cont 999 t2(1:1000)
+	hist/plot 999
+	hist/fit 999(205:250) e
+	exec get_fitpar
+
+	tau = -1./par(2)
+	mess RC = [tau]
+	nfit = 3.*[tau]/xinc(1)
+	nfit = $SIGMA(int([nfit]+0.5))
+	mess nfit = [nfit]
+	nup = 205 + [nfit]
+	hist/fit 999(205:[nup]) e
+	exec get_fitpar
+
+	tau = -1./par(2)
+	mess RC = [tau]
+
+	vector/copy t2 cont
+	call [f_dir]/integ.f(1000)
+	hist/put/cont 999 cont
+	hist/pl 999
+
+        wait
+     enddo
+
+     vector/del vxyz
+     wait
+enddo
+
+vector/del txyz

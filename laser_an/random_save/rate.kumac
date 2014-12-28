@@ -1,0 +1,15 @@
+macro rate ntry=10 nbin=100 hz=2.e6  xup=2.e-6
+
+
+hist/cre/1d 99 random [nbin] 0. [xup]
+hist/cre/1d 100 diff [nbin] 0. [xup]
+hist/cre/1d 101 f_diff [nbin] 0. [xup]
+hist/cre/1d 102 diff,n=2 [nbin] 0. [xup]
+hist/cre/1d 98 poisson 20 -0.5 20.5
+
+xbin = [xup]/[nbin]
+mess xbin = [xbin]
+
+call /det_rd_results/sipm_anal/laser_an/random/rate.f([ntry],[hz],[xup])
+
+h/fit 100 p1

@@ -1,0 +1,57 @@
+macro examine_peaks   dir=../exp/Ham-025U-4_Oct_19 
+
+*   construct templates for all voltages at given it
+*   selecting pulses in the laser gate by the ratio of area to peak
+*   highest peak within the laser gate [lgl] to ]lgu] is used
+*   area is calculated from [low_edge] to [upp_edge], max pulse being in bin 201
+
+exec ../setup
+
+	       
+vec/read temp [dir]/temps.dat
+
+ntemp=$VLEN(temp)
+
+exec vect_cre vecname=cont len=200
+
+do it = 1,[ntemp]
+    t=temp([it])
+    temp_dir = [dir]/[t]
+    vec/del voltz
+    vec/read voltz [temp_dir]/bias_volt.dat	
+    nvolt=$VLEN(voltz)
+
+    exec vect_cre vecname=pe_val len=[nvolt]
+
+    do iv=1,[nvolt]	
+	v = voltz([iv])
+	v = $FORMAT([v],F5.2)
+        mess voltage = [v]
+        file = [dir]/[t]_breakdown/[v]_peaks.hist
+	close 33
+	hist/file 33 [file]
+
+	hist/get/cont 101 cont
+
+	ip = $icall('locate_1pe.f(100.)')
+	mess [ip]
+	il = [ip] - 5
+	iu = [ip] + 5
+	hist/fit 101([il]:[iu]) g
+        hist/pl 101
+	exec get_fitpar
+
+	vec/copy p2(1) pe_val([iv])
+	*wait
+
+	hist/del 101
+        
+    enddo
+
+	mess temperature = [t]
+	
+	igset mtype 20
+	graph [nvolt] voltz pe_val '*ALW'
+        vec/fit voltz pe_val ! p1 *
+	wait
+enddo
